@@ -21,16 +21,27 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     if (session === undefined) return; // still checking
-    if (!session) { setCustomer(null); setLoading(false); return; }
-
     let cancelled = false;
-    setLoading(true);
-    supabase
-      .from('customer')
-      .select('id, name, email, phone, role, is_guest')
-      .eq('auth_user_id', session.user.id)
-      .maybeSingle()
-      .then(({ data }) => { if (!cancelled) { setCustomer(data); setLoading(false); } });
+    const loadCustomer = async () => {
+      await Promise.resolve();
+      if (cancelled) return;
+      if (!session) {
+        setCustomer(null);
+        setLoading(false);
+        return;
+      }
+      setLoading(true);
+      const { data } = await supabase
+        .from('customer')
+        .select('id, name, email, phone, role, is_guest')
+        .eq('auth_user_id', session.user.id)
+        .maybeSingle();
+      if (!cancelled) {
+        setCustomer(data);
+        setLoading(false);
+      }
+    };
+    loadCustomer();
     return () => { cancelled = true; };
   }, [session]);
 

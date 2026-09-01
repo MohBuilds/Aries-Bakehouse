@@ -95,14 +95,19 @@ export default function Checkout() {
 
   useEffect(() => {
     if (!isRealAccount || !customer) return;
-    setName((current) => current || customer.name || '');
-    setPhone((current) => current || customer.phone || '');
-    setEmail((current) => current || customer.email || '');
+    Promise.resolve().then(() => {
+      setName((current) => current || customer.name || '');
+      setPhone((current) => current || customer.phone || '');
+      setEmail((current) => current || customer.email || '');
+    });
   }, [isRealAccount, customer]);
 
   useEffect(() => {
-    if (!isRealAccount || !customer?.id) { setSavedAddresses(null); return; }
     let cancelled = false;
+    if (!isRealAccount || !customer?.id) {
+      Promise.resolve().then(() => { if (!cancelled) setSavedAddresses(null); });
+      return () => { cancelled = true; };
+    }
     supabase.from('address').select('*').eq('customer_id', customer.id)
       .order('is_default', { ascending: false }).order('created_at', { ascending: false })
       .then(({ data, error }) => {

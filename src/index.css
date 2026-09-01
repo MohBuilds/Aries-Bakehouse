@@ -3422,6 +3422,243 @@ input[readonly] {
   }
 }
 
+/* Made-to-order assembly line: vertical scroll moves the product rail
+   horizontally while each product advances through its supplied renders. */
+.counter-scroller {
+  height: 620svh;
+  background: var(--color-choc);
+  color: var(--color-white);
+}
+
+.counter-scroller__viewport {
+  display: block;
+  padding: clamp(24px, 5svh, 54px) 0 28px;
+}
+
+.counter-scroller__heading {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: var(--space-5);
+}
+
+.counter-scroller__heading h2,
+.counter-scroller--static > h2 {
+  max-width: 620px;
+  margin: 0;
+  color: var(--color-white);
+  font-size: clamp(30px, 4.5vw, 58px);
+  line-height: 0.98;
+  letter-spacing: -0.035em;
+}
+
+.counter-scroller__heading p {
+  max-width: 390px;
+  margin: 0;
+  color: color-mix(in srgb, var(--color-cream) 74%, transparent);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.counter-scroller__rail {
+  display: flex;
+  height: calc(100svh - 160px);
+  will-change: transform;
+}
+
+.counter-scroller__slide {
+  flex: 0 0 auto;
+}
+
+.counter-scroller__inner {
+  height: 100%;
+  grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
+  gap: clamp(30px, 6vw, 88px);
+}
+
+.counter-scroller__stage {
+  position: relative;
+  width: 100%;
+  height: min(62svh, 680px);
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--color-cream) 7%, var(--color-choc));
+  box-shadow: 0 18px 48px rgba(9, 3, 2, 0.28);
+  isolation: isolate;
+}
+
+.counter-scroller__stage img,
+.counter-scroller__stage video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  opacity: 0;
+  transform: scale(1.025);
+  transition: opacity 260ms cubic-bezier(0.16, 1, 0.3, 1), transform 500ms cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 1;
+}
+
+.counter-scroller__stage img.is-visible,
+.counter-scroller__stage video.is-visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.counter-scroller__stage-label {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  z-index: 2;
+  padding: 8px 12px;
+  border-radius: var(--radius-pill);
+  background: var(--color-cream);
+  color: var(--color-choc);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.counter-scroller__ghost-name {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 0;
+  width: 100%;
+  color: color-mix(in srgb, var(--color-cream) 14%, transparent);
+  font-family: var(--font-display);
+  font-size: clamp(72px, 10vw, 150px);
+  font-style: italic;
+  line-height: 0.78;
+  text-align: center;
+  transform: translate(-50%, -50%);
+  user-select: none;
+}
+
+.counter-scroller__copy {
+  align-self: center;
+}
+
+.counter-scroller__count {
+  color: var(--color-caramel);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.counter-scroller__copy h3 {
+  max-width: 520px;
+  margin: 16px 0 0;
+  color: var(--color-white);
+  font-size: clamp(28px, 3.7vw, 52px);
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+}
+
+.counter-scroller__copy p {
+  max-width: 440px;
+  margin: 18px 0 0;
+  color: color-mix(in srgb, var(--color-cream) 76%, transparent);
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+.counter-scroller__copy .btn {
+  margin-top: 26px;
+  background: var(--color-cream);
+  color: var(--color-choc);
+}
+
+.counter-scroller__copy .btn:hover {
+  background: var(--color-caramel);
+  color: var(--color-white);
+}
+
+.counter-scroller__progress {
+  position: absolute;
+  right: 0;
+  bottom: 24px;
+  left: 0;
+  height: 3px;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--color-cream) 18%, transparent);
+}
+
+.counter-scroller__progress span {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform: scaleX(0);
+  transform-origin: left;
+  background: var(--color-caramel);
+  transition: transform 180ms ease-out;
+}
+
+.counter-scroller--static {
+  background: transparent;
+  color: var(--color-choc);
+}
+
+.counter-scroller--static > h2 {
+  color: var(--color-choc);
+}
+
+.counter-scroller__intro {
+  color: var(--color-text-muted);
+}
+
+.counter-scroller__static-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.counter-scroller__static-card video,
+.counter-scroller__static-card img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: var(--radius-md);
+  object-fit: contain;
+  background: var(--color-cream);
+}
+
+@media (max-width: 1023px) {
+  .counter-scroller { height: 570svh; }
+  .counter-scroller__heading p { display: none; }
+  .counter-scroller__rail { height: calc(100svh - 130px); }
+  .counter-scroller__inner { grid-template-columns: 1fr; gap: 20px; align-content: center; }
+  .counter-scroller__stage { height: min(48svh, 520px); }
+  .counter-scroller__copy { display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 0 18px; }
+  .counter-scroller__count { grid-column: 1 / -1; }
+  .counter-scroller__copy h3 { margin-top: 8px; font-size: clamp(25px, 5vw, 40px); }
+  .counter-scroller__copy p { margin-top: 9px; }
+  .counter-scroller__copy .btn { grid-column: 2; grid-row: 2 / 4; margin: 0; }
+}
+
+@media (max-width: 767px) {
+  .counter-scroller { height: 520svh; }
+  .counter-scroller__viewport { padding-top: 22px; }
+  .counter-scroller__heading h2 { font-size: 29px; }
+  .counter-scroller__rail { height: calc(100svh - 96px); }
+  .counter-scroller__inner { padding-top: 12px; padding-bottom: 28px; gap: 16px; }
+  .counter-scroller__stage { height: min(42svh, 390px); }
+  .counter-scroller__stage-label { right: 10px; bottom: 10px; }
+  .counter-scroller__copy { display: block; }
+  .counter-scroller__copy h3 { font-size: 25px; }
+  .counter-scroller__copy p { font-size: 13px; line-height: 1.5; }
+  .counter-scroller__copy .btn { margin-top: 16px; }
+  .counter-scroller__progress { bottom: 12px; }
+  .counter-scroller__static-grid { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .counter-scroller__stage img,
+  .counter-scroller__stage video { transition: opacity 150ms ease-out; transform: none; }
+}
+
 /* ============================================================
    DEV/QA ONLY — Brownie Box hero-treatment comparison.
    Remove this whole block alongside BrowniesHeroQA.jsx once a

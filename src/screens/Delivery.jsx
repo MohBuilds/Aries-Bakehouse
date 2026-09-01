@@ -17,7 +17,7 @@ export default function Delivery() {
           <h2>Fees and timing</h2>
           <p>
           Delivery fees are confirmed after the team reviews your checkout address. You will know the fee before delivery is finalised.
-          All pickup and delivery orders require at least 24 hours' notice.
+          All pickup and delivery orders require at least 24 hours&apos; notice.
           </p>
         </article>
 

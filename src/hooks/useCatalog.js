@@ -20,10 +20,18 @@ function useAsync(fn, deps, initial) {
   useEffect(() => {
     if (initial !== undefined) return;
     let cancelled = false;
-    setState((s) => ({ ...s, loading: true }));
-    fn()
-      .then((data) => { if (!cancelled) setState({ data, loading: false, error: null }); })
-      .catch((error) => { if (!cancelled) setState({ data: null, loading: false, error }); });
+    const load = async () => {
+      await Promise.resolve();
+      if (cancelled) return;
+      setState((current) => ({ ...current, loading: true }));
+      try {
+        const data = await fn();
+        if (!cancelled) setState({ data, loading: false, error: null });
+      } catch (error) {
+        if (!cancelled) setState({ data: null, loading: false, error });
+      }
+    };
+    load();
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps);

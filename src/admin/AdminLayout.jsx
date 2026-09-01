@@ -59,10 +59,6 @@ export default function AdminLayout({ children }) {
     .find((item) => (item.end ? pathname === item.to : pathname.startsWith(item.to)));
 
   useEffect(() => {
-    setNavOpen(false);
-  }, [pathname]);
-
-  useEffect(() => {
     if (!navOpen) return undefined;
     const onKeyDown = (event) => {
       if (event.key === 'Escape') setNavOpen(false);
@@ -112,6 +108,7 @@ export default function AdminLayout({ children }) {
                   to={item.to}
                   end={item.end}
                   className={({ isActive }) => `admin-nav__link${isActive ? ' is-active' : ''}`}
+                  onClick={() => setNavOpen(false)}
                 >
                   <Icon size={18} strokeWidth={1.8} aria-hidden="true" />
                   <span>{item.label}</span>
