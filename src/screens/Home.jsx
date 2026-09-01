@@ -7,11 +7,8 @@ import ProductCard from '../components/ProductCard.jsx';
 import HeroCarousel from '../components/HeroCarousel.jsx';
 import ScrollRevealGroup from '../components/ScrollRevealGroup.jsx';
 import CounterRail from '../components/CounterRail.jsx';
-import SignatureLoafSpotlight from '../components/SignatureLoafSpotlight.jsx';
 import CounterScroller from '../components/CounterScroller.jsx';
 import OrderingWorks from '../components/OrderingWorks.jsx';
-import PreorderPromise from '../components/PreorderPromise.jsx';
-import WhatsAppConcierge from '../components/WhatsAppConcierge.jsx';
 import { Button } from '../components/ui/button.jsx';
 
 export default function Home({ categories: initialCategories, featured: initialFeatured } = {}) {
@@ -20,10 +17,13 @@ export default function Home({ categories: initialCategories, featured: initialF
 
   return (
     <div className="home-page">
-      {/* 1. Decisive Cinematic Opening */}
+      {/* 1. Act 1: Decisive Opening Hero */}
       <HeroCarousel />
 
-      {/* 2. Editorial Menu Discovery Wall */}
+      {/* 2. Act 2: Signature Assembly Theatre (The Standout Experience) */}
+      <CounterScroller />
+
+      {/* 3. Act 3: Editorial Menu Discovery Wall */}
       {categoriesLoading ? (
         <div className="container category-showcase__loading" aria-label="Loading menu categories">
           {Array.from({ length: 4 }).map((_, index) => (
@@ -34,17 +34,11 @@ export default function Home({ categories: initialCategories, featured: initialF
         <CounterRail categories={categories} />
       )}
 
-      {/* 3. Signature Spotlight Moment */}
-      <SignatureLoafSpotlight />
-
-      {/* 4. Signature Assembly Experience (The Wow Moment) */}
-      <CounterScroller />
-
-      {/* 5. Fresh Picks Editorial Grid */}
+      {/* 4. Act 4: Fresh Picks from the Counter */}
       <section className="container home-section home-section--fresh-picks" aria-labelledby="featured-title">
         <div className="home-section__header">
           <div>
-            <p className="home-section__kicker">From the kitchen</p>
+            <span className="page-kicker">From the kitchen</span>
             <h2 id="featured-title">Fresh picks</h2>
             <p>Made-to-order favourites for a thoughtful treat or an easy gathering.</p>
           </div>
@@ -71,14 +65,8 @@ export default function Home({ categories: initialCategories, featured: initialF
         ) : null}
       </section>
 
-      {/* 6. Calm Three-Part Ordering Timeline */}
+      {/* 5. Act 5: Calm Reassurance & How Ordering Works */}
       <OrderingWorks />
-
-      {/* 7. The 24-Hour Preorder Brand Promise */}
-      <PreorderPromise />
-
-      {/* 8. Branded WhatsApp Concierge Ordering */}
-      <WhatsAppConcierge />
     </div>
   );
 }

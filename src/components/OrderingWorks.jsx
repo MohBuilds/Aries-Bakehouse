@@ -1,28 +1,29 @@
 'use client';
 
-import { Sparkles, Sliders, Clock } from 'lucide-react';
+import { Sparkles, Sliders, Clock, MessageCircle, ArrowUpRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const ORDER_STEPS = [
   {
     num: '01',
     icon: Sparkles,
     title: 'Choose your bake',
-    subtitle: 'Browse the counter',
-    copy: 'Select your favourite loaf, brownie box, layered parfait, savoury pastry tray or sharing platter.',
+    subtitle: 'From the digital counter',
+    copy: 'Select your favourite loaf, brownie box, layered parfait, savoury pastry tray, or party platter.',
   },
   {
     num: '02',
     icon: Sliders,
     title: 'Configure the details',
-    subtitle: 'Tailor toppings & sizes',
-    copy: 'Choose sizes, crust crunches, sauces, and flavour mixes crafted specifically to your preference.',
+    subtitle: 'Toppings, crunches & sizes',
+    copy: 'Customize loaf toppings, crust crunch, dipping sauces, and flavours tailored to your taste.',
   },
   {
     num: '03',
     icon: Clock,
-    title: 'Baked fresh with 24h notice',
-    subtitle: 'Delivered or ready for pickup',
-    copy: 'Every order is freshly prepared in our Abeokuta kitchen. Allow at least 24 hours for oven perfection.',
+    title: 'Baked fresh to order',
+    subtitle: '24h advance notice',
+    copy: 'We prepare every order from scratch in our Abeokuta kitchen for scheduled collection or delivery.',
   },
 ];
 
@@ -31,10 +32,10 @@ export default function OrderingWorks() {
     <section className="ordering-timeline-section" aria-labelledby="ordering-title">
       <div className="container ordering-timeline__inner">
         <div className="ordering-timeline__header">
-          <p className="home-section__kicker">The Process</p>
+          <span className="page-kicker">The Bakehouse Standard</span>
           <h2 id="ordering-title">How ordering works</h2>
           <p className="ordering-timeline__subtitle">
-            Three simple steps between your craving and a freshly baked box.
+            Three simple steps between your craving and fresh oven warmth.
           </p>
         </div>
 
@@ -60,6 +61,24 @@ export default function OrderingWorks() {
               </div>
             );
           })}
+        </div>
+
+        {/* Quiet Reassurance & Support Bar */}
+        <div className="ordering-timeline__support-bar">
+          <div className="ordering-timeline__support-text">
+            <strong>Need help with an existing order or dietary question?</strong>
+            <span>Our Abeokuta kitchen counter is available on WhatsApp for quick customer support.</span>
+          </div>
+          <a
+            href="https://wa.me/2348121145785?text=Hello%20Aries%2011%20Bakehouse%2C%20I%20have%20a%20support%20question."
+            target="_blank"
+            rel="noreferrer"
+            className="ordering-timeline__support-link"
+          >
+            <MessageCircle size={15} aria-hidden="true" />
+            <span>WhatsApp Support</span>
+            <ArrowUpRight size={14} aria-hidden="true" />
+          </a>
         </div>
       </div>
     </section>

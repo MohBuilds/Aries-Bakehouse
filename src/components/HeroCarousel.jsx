@@ -2,10 +2,10 @@
 
 import Image from 'next/image';
 import { motion, useReducedMotion } from 'framer-motion';
-import { ArrowDown, ArrowUpRight } from 'lucide-react';
+import { ArrowDown, ArrowUpRight, MessageCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-const WHATSAPP_URL = 'https://wa.me/2348121145785?text=Hello%20Aries%2011%20Bakehouse%2C%20I%20would%20like%20to%20place%20an%20order.';
+const WHATSAPP_SUPPORT_URL = 'https://wa.me/2348121145785?text=Hello%20Aries%2011%20Bakehouse%2C%20I%20have%20a%20question.';
 
 export default function HeroCarousel() {
   const reduceMotion = useReducedMotion();
@@ -45,8 +45,14 @@ export default function HeroCarousel() {
             Banana bread, brownies, pastries, cake treats and small chops—configured by you and baked fresh for what comes next.
           </motion.p>
           <motion.div className="home-hero__static-actions" {...reveal(0.28)}>
-            <Link to="/menu" className="btn home-hero__primary-action">Explore the menu <ArrowUpRight size={16} aria-hidden="true" /></Link>
-            <a href={WHATSAPP_URL} target="_blank" rel="noreferrer" className="home-hero__text-action">Order on WhatsApp</a>
+            <Link to="/menu" className="btn home-hero__primary-action">
+              <span>Explore the menu</span>
+              <ArrowUpRight size={16} aria-hidden="true" />
+            </Link>
+            <a href={WHATSAPP_SUPPORT_URL} target="_blank" rel="noreferrer" className="home-hero__text-action">
+              <MessageCircle size={15} aria-hidden="true" />
+              <span>WhatsApp Support</span>
+            </a>
           </motion.div>
         </div>
       </div>
