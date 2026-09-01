@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ArrowRight, CheckCircle2, Clock3, MessageCircle, ReceiptText, UtensilsCrossed } from 'lucide-react';
+import { ArrowRight, CheckCircle2, Clock3, MessageCircle, Utensils, Truck, Sparkles, MapPin, Calendar, ShoppingBag } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 import { getOrder } from '../lib/orders.js';
 import { fmtLineTotal, fmtNaira } from '../lib/format.js';
@@ -11,36 +11,161 @@ export default function OrderConfirmation() {
 
   useEffect(() => {
     let cancelled = false;
-    getOrder(orderId).then((result) => { if (!cancelled) setOrder(result); }).catch(() => { if (!cancelled) setOrder(null); });
+    getOrder(orderId)
+      .then((result) => { if (!cancelled) setOrder(result); })
+      .catch(() => { if (!cancelled) setOrder(null); });
     return () => { cancelled = true; };
   }, [orderId]);
 
-  if (order === undefined) return <div className="container order-state-loading">Loading your order…</div>;
-  if (!order) return <main className="container order-confirmation"><EmptyState title="Order not found" desc="Place an order from the menu to see its confirmation." actionLabel="Browse the menu" actionTo="/menu" /></main>;
+  if (order === undefined) {
+    return (
+      <div className="container order-state-loading">
+        <div className="skeleton" style={{ height: 40, width: '40%', margin: '40px auto 20px', borderRadius: 8 }} />
+        <div className="skeleton" style={{ height: 260, maxWidth: 640, margin: '0 auto', borderRadius: 16 }} />
+      </div>
+    );
+  }
+
+  if (!order) {
+    return (
+      <main className="container order-confirmation">
+        <EmptyState
+          title="Order not found"
+          desc="We couldn’t find this order. Please check your confirmation link or browse our menu."
+          actionLabel="Browse the menu"
+          actionTo="/menu"
+        />
+      </main>
+    );
+  }
 
   const pending = order.status === 'pending';
-  const StatusIcon = pending ? Clock3 : CheckCircle2;
-  const supportUrl = `https://wa.me/2348121145785?text=${encodeURIComponent(`Hello Aries 11 Bakehouse, I need help with order #${order.orderNumber}.`)}`;
+  const supportUrl = `https://wa.me/2348121145785?text=${encodeURIComponent(
+    `Hello Aries 11 Bakehouse, I am checking in on my order #${order.orderNumber || order.id?.slice(0, 8)}.`
+  )}`;
 
   return (
-    <main className="container order-confirmation">
-      <header className="order-confirmation__header"><span className={pending ? 'is-pending' : ''}><StatusIcon size={25} aria-hidden="true" /></span><p>{pending ? 'Payment pending' : 'Order received'}</p><h1>{pending ? 'Your checkout has been saved' : 'Thank you for your order'}</h1><div>{pending ? 'Your order is recorded while payment confirmation completes.' : `Thank you, ${order.name || 'friend'}. The kitchen has received your order.`}</div><small>Order #{order.orderNumber}</small></header>
+    <main className="container order-confirmation-page">
+      {/* 1. Celebratory Header */}
+      <header className="order-confirmation__header">
+        <div className="order-confirmation__icon-badge">
+          {pending ? <Clock3 size={28} aria-hidden="true" /> : <Sparkles size={28} aria-hidden="true" />}
+        </div>
+        <span className="page-kicker">{pending ? 'Payment Pending' : 'Order Confirmed'}</span>
+        <h1 className="order-confirmation__title">
+          {pending ? 'Your order is recorded.' : 'Baked for the moment.'}
+        </h1>
+        <p className="order-confirmation__subtitle">
+          {pending
+            ? 'We are confirming your payment. The kitchen has received your details.'
+            : `Thank you, ${order.name || 'valued customer'}. Your bakes are scheduled with our Abeokuta kitchen.`}
+        </p>
+        <div className="order-confirmation__ref-pill">
+          <span>Order #{order.orderNumber || order.id?.slice(0, 8)}</span>
+        </div>
+      </header>
 
+      {/* 2. Visual Status Timeline */}
+      <section className="order-confirmation__timeline-card" aria-label="Order preparation progress">
+        <h2 className="order-confirmation__section-title">Kitchen Timeline</h2>
+        <div className="order-status-steps">
+          <div className="order-status-step is-complete">
+            <span className="order-status-step__dot"><CheckCircle2 size={16} /></span>
+            <div className="order-status-step__copy">
+              <strong>Order Received</strong>
+              <span>Details & receipt logged</span>
+            </div>
+          </div>
+
+          <div className={`order-status-step${!pending ? ' is-active' : ''}`}>
+            <span className="order-status-step__dot"><Utensils size={16} /></span>
+            <div className="order-status-step__copy">
+              <strong>Kitchen Preparation</strong>
+              <span>Handcrafted 24h before date</span>
+            </div>
+          </div>
+
+          <div className="order-status-step">
+            <span className="order-status-step__dot"><Truck size={16} /></span>
+            <div className="order-status-step__copy">
+              <strong>{order.fulfilment === 'pickup' ? 'Counter Pickup' : 'Delivery Dispatch'}</strong>
+              <span>{order.fulfilment === 'pickup' ? 'Ready at Abeokuta counter' : 'Dispatched to your address'}</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 3. Receipt & Configured Items */}
       <section className="order-confirmation__panel">
-        <div className="order-confirmation__items">{order.items.map((item) => <div key={item.id}><span>{item.name}<small>Quantity {item.qty}</small></span><strong>{fmtLineTotal(item.price, item.qty)}</strong></div>)}</div>
-        <div className="order-confirmation__total"><span>Total</span><strong>{fmtNaira(order.total)}</strong></div>
-        {order.hasUnpricedItems && <p className="order-confirmation__notice">The displayed total excludes items still awaiting price confirmation.</p>}
-        <dl className="order-confirmation__details"><div><dt>Fulfilment</dt><dd>{order.fulfilment === 'pickup' ? 'Pickup' : 'Delivery'}</dd></div>{order.fulfilment === 'delivery' && <div><dt>Address</dt><dd>{order.address || 'To be confirmed'}</dd></div>}<div><dt>Preferred date</dt><dd>{order.date || 'To be confirmed'}</dd></div><div><dt>Preferred time</dt><dd>{order.time || 'To be confirmed'}</dd></div></dl>
+        <h2 className="order-confirmation__section-title">Order Receipt</h2>
+        <div className="order-confirmation__items">
+          {order.items?.map((item, idx) => (
+            <div key={item.id || idx} className="order-confirmation__item-row">
+              <div className="order-confirmation__item-info">
+                <strong>{item.name}</strong>
+                <span>Quantity: {item.qty}</span>
+              </div>
+              <span className="order-confirmation__item-total">
+                {item.price === null ? 'Price TBC' : fmtLineTotal(item.price, item.qty)}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        <div className="order-confirmation__summary-totals">
+          <div className="order-confirmation__total-line">
+            <span>Total Paid</span>
+            <strong>{fmtNaira(order.total)}</strong>
+          </div>
+          {order.hasUnpricedItems && (
+            <p className="order-confirmation__notice">
+              The displayed total excludes custom items awaiting price confirmation.
+            </p>
+          )}
+        </div>
+
+        <dl className="order-confirmation__details-grid">
+          <div>
+            <dt><Truck size={14} aria-hidden="true" /> Fulfilment</dt>
+            <dd>{order.fulfilment === 'pickup' ? 'Pickup in Abeokuta' : 'Doorstep Delivery'}</dd>
+          </div>
+          {order.fulfilment === 'delivery' && (
+            <div>
+              <dt><MapPin size={14} aria-hidden="true" /> Address</dt>
+              <dd>{order.address || 'Address on file'}</dd>
+            </div>
+          )}
+          <div>
+            <dt><Calendar size={14} aria-hidden="true" /> Scheduled Date</dt>
+            <dd>{order.date || 'To be scheduled'}</dd>
+          </div>
+          <div>
+            <dt><Clock3 size={14} aria-hidden="true" /> Time Window</dt>
+            <dd>{order.time ? `${order.time.charAt(0).toUpperCase() + order.time.slice(1)} slot` : 'Morning'}</dd>
+          </div>
+        </dl>
       </section>
 
-      <section className="order-confirmation__next" aria-labelledby="what-next-title">
-        <h2 id="what-next-title">What happens next</h2>
-        <div><span><ReceiptText size={17} aria-hidden="true" /></span><p><strong>{pending ? 'Confirmation is being checked' : 'Your order is recorded'}</strong><small>{pending ? 'Keep this page—there is no need to submit the checkout again.' : 'You can return to your account at any time to see the latest status.'}</small></p></div>
-        <div><span><UtensilsCrossed size={17} aria-hidden="true" /></span><p><strong>The kitchen prepares your order</strong><small>Preparation follows your preferred date and time. The status changes when work begins.</small></p></div>
-        <div><span><MessageCircle size={17} aria-hidden="true" /></span><p><strong>We will contact you if anything needs confirming</strong><small>For faster support, always include order #{order.orderNumber}.</small></p></div>
-      </section>
-
-      <div className="order-confirmation__actions"><Link to={`/account/orders/${order.id}`} className="btn btn-primary">Track order<ArrowRight size={15} aria-hidden="true" /></Link><a href={supportUrl} target="_blank" rel="noreferrer" className="btn btn-secondary"><MessageCircle size={15} aria-hidden="true" />Get help with this order</a><Link to="/menu">Continue shopping</Link></div>
+      {/* 4. Action Pathways */}
+      <div className="order-confirmation__actions-card">
+        <div className="order-confirmation__actions-left">
+          <h3>Need to confirm delivery or add items?</h3>
+          <p>Chat directly with our counter team on WhatsApp with your order number.</p>
+        </div>
+        <div className="order-confirmation__buttons">
+          <a href={supportUrl} target="_blank" rel="noreferrer" className="btn btn-whatsapp">
+            <MessageCircle size={16} aria-hidden="true" />
+            <span>Chat with Bakers</span>
+          </a>
+          <Link to={`/account/orders/${order.id}`} className="btn btn-secondary">
+            <span>Track order</span>
+            <ArrowRight size={14} aria-hidden="true" />
+          </Link>
+          <Link to="/menu" className="order-confirmation__menu-link">
+            Explore more bakes
+          </Link>
+        </div>
+      </div>
     </main>
   );
 }

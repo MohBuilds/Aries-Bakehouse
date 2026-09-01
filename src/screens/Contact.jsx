@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Badge } from '../components/ui/badge.jsx';
-import { Button } from '../components/ui/button.jsx';
+import { MessageCircle, Phone, MapPin, Clock, ArrowUpRight, HelpCircle, Truck } from 'lucide-react';
 
 const SUPPORT_URL = 'https://wa.me/2348121145785';
 
@@ -9,49 +8,51 @@ export default function Contact() {
     <div className="contact-page">
       <section className="container contact-intro" aria-labelledby="contact-title">
         <div className="contact-intro__copy">
-          <Badge variant="caramel">Support</Badge>
-          <h1 id="contact-title">Help without the runaround.</h1>
-          <p>For an existing order, pickup, or delivery question, message the bakehouse and include your order number.</p>
+          <span className="page-kicker">Direct Counter Assistance</span>
+          <h1 id="contact-title">We’re here to help.</h1>
+          <p>
+            Have a question about an upcoming celebration, need help with an existing order, or want to coordinate specific delivery timing? Message our team directly.
+          </p>
         </div>
         <div className="contact-intro__action">
-          <Button asChild variant="whatsapp">
-            <a href={SUPPORT_URL} target="_blank" rel="noreferrer">Message WhatsApp support</a>
-          </Button>
-          <span>Replies Monday-Saturday, 9am-7pm</span>
+          <a href={SUPPORT_URL} target="_blank" rel="noreferrer" className="btn btn-whatsapp contact-intro__whatsapp-btn">
+            <MessageCircle size={18} aria-hidden="true" />
+            <span>Message on WhatsApp</span>
+          </a>
+          <span className="contact-intro__hours">Active Monday–Saturday · 9:00 AM – 7:00 PM WAT</span>
         </div>
       </section>
 
-      <section className="container contact-details" aria-labelledby="contact-details-title">
-        <div className="contact-details__primary">
-          <p className="page-kicker">Quick answers</p>
-          <h2 id="contact-details-title">Start with the right place.</h2>
-          <p>Ordering stays on the website. These links cover the questions that usually come before or after checkout.</p>
-
-          <div className="contact-links">
-            <Link to="/delivery">
-              <span><small>Pickup and delivery</small>Timing, locations, and fees</span>
-              <span aria-hidden="true">&rarr;</span>
-            </Link>
-            <Link to="/faq">
-              <span><small>Frequently asked</small>Ordering and product answers</span>
-              <span aria-hidden="true">&rarr;</span>
-            </Link>
-            <a href="tel:+2348121145785">
-              <span><small>Phone</small>+234 812 114 5785</span>
-              <span aria-hidden="true">&rarr;</span>
-            </a>
-          </div>
+      <section className="container contact-details-grid" aria-labelledby="contact-details-title">
+        <div className="contact-card">
+          <div className="contact-card__icon"><MessageCircle size={22} /></div>
+          <h3>WhatsApp Concierge</h3>
+          <p>The fastest way to reach our baking team for custom orders and order status updates.</p>
+          <a href={SUPPORT_URL} target="_blank" rel="noreferrer" className="contact-card__link">
+            <span>+234 812 114 5785</span>
+            <ArrowUpRight size={15} aria-hidden="true" />
+          </a>
         </div>
 
-        <aside className="contact-hours" aria-labelledby="contact-hours-title">
-          <h2 id="contact-hours-title">Bakehouse details</h2>
-          <dl>
-            <div><dt>Open</dt><dd>Monday-Saturday, 9am-7pm</dd></div>
-            <div><dt>Location</dt><dd>Abeokuta, Nigeria</dd></div>
-            <div><dt>Pickup</dt><dd>Exact address confirmed after ordering.</dd></div>
-            <div><dt>Notice</dt><dd>Please order at least 24 hours ahead.</dd></div>
-          </dl>
-        </aside>
+        <div className="contact-card">
+          <div className="contact-card__icon"><MapPin size={22} /></div>
+          <h3>Abeokuta Kitchen</h3>
+          <p>All bakes are prepared fresh in Abeokuta, Ogun State. Exact pickup address confirmed upon order.</p>
+          <Link to="/delivery" className="contact-card__link">
+            <span>View delivery zones</span>
+            <ArrowUpRight size={15} aria-hidden="true" />
+          </Link>
+        </div>
+
+        <div className="contact-card">
+          <div className="contact-card__icon"><Clock size={22} /></div>
+          <h3>Operating Hours</h3>
+          <p>Baking & support active Monday to Saturday. Please ensure at least 24 hours advance notice.</p>
+          <Link to="/faq" className="contact-card__link">
+            <span>Browse FAQs</span>
+            <ArrowUpRight size={15} aria-hidden="true" />
+          </Link>
+        </div>
       </section>
     </div>
   );
