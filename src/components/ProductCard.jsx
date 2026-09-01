@@ -22,7 +22,7 @@ const CARD_VARIANT_KEY = {
   cake: 'flavours',
 };
 
-export default function ProductCard({ product }) {
+export default function ProductCard({ product, variant = 'grid' }) {
   const { addToCart } = useCart();
   const canQuickAdd = !product.configurator && !product.outOfStock;
   const [previewImage, setPreviewImage] = useState(null);
@@ -31,6 +31,9 @@ export default function ProductCard({ product }) {
   const variantKey = CARD_VARIANT_KEY[product.configurator];
   const canSwatch = Boolean(variantKey);
   const imageSrc = productImageSource(product);
+  const isFloating = variant === 'floating';
+  const imageFit = isFloating ? 'contain' : productImageFit(product);
+  const imagePadding = isFloating ? 22 : productImagePadding(product);
 
   useEffect(() => {
     if (!canSwatch) return;
@@ -49,14 +52,14 @@ export default function ProductCard({ product }) {
 
   return (
     <Card
-      className={`product-card${tapActive ? ' product-card--tapped' : ''}`}
+      className={`product-card${isFloating ? ' product-card--floating' : ''}${tapActive ? ' product-card--tapped' : ''}`}
       data-reveal-item
       onPointerDown={handleTapState}
       style={{ opacity: product.outOfStock ? 0.55 : 1 }}
     >
       <div
         className="product-card__image"
-        style={{ padding: productImagePadding(product) }}
+        style={{ padding: imagePadding }}
         onMouseLeave={() => setPreviewImage(null)}
       >
         <Link to={`/product/${product.slug}`} className="product-card__image-link" aria-label={`View ${product.name}`}>
@@ -69,7 +72,7 @@ export default function ProductCard({ product }) {
                 event.currentTarget.src = imageSrc;
               }
             }}
-            style={{ width: '100%', height: '100%', objectFit: previewImage ? 'cover' : productImageFit(product), borderRadius: productImagePadding(product) ? 8 : 0 }}
+            style={{ width: '100%', height: '100%', objectFit: previewImage ? 'cover' : imageFit, borderRadius: !isFloating && imagePadding ? 8 : 0 }}
           />
         </Link>
           {product.badge && (

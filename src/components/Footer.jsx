@@ -27,13 +27,14 @@ export default function Footer() {
         </div>
 
         <nav className="site-footer__nav" aria-label="Footer navigation">
+          <span className="site-footer__col-label">Explore</span>
           {FOOTER_LINKS.map(([label, to]) => <Link key={to} to={to}>{label}</Link>)}
         </nav>
 
         <div className="site-footer__support">
-          <p>Need help with an order?</p>
+          <span className="site-footer__col-label">Support</span>
           <a href={SUPPORT_URL} target="_blank" rel="noreferrer">Message WhatsApp support</a>
-          <span>Monday–Saturday, 9am–7pm</span>
+          <span className="site-footer__support-hours">Monday–Saturday, 9am–7pm</span>
         </div>
 
         <div className="site-footer__base">

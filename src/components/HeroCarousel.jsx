@@ -17,7 +17,23 @@ export default function HeroCarousel() {
 
   return (
     <section className="home-hero home-hero--static" aria-labelledby="home-hero-title">
-      <div className="home-hero__wordmark" aria-hidden="true">ARIES 11</div>
+      <motion.div
+        className="home-hero__backdrop"
+        initial={reduceMotion ? false : { opacity: 0, scale: 1.06 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+      >
+        <Image
+          src="/uploads/aries11-brand-collection-hero.webp"
+          alt="A spread of Aries 11 Bakehouse treats — banana bread loaves, brownies, small chops and cake cups"
+          fill
+          priority
+          sizes="100vw"
+          className="home-hero__backdrop-img"
+        />
+        <div className="home-hero__backdrop-scrim" aria-hidden="true" />
+      </motion.div>
+
       <div className="container home-hero__static-inner">
         <div className="home-hero__static-copy">
           <motion.p className="home-hero__edition" {...reveal(0.05)}>Made to order · Abeokuta</motion.p>
@@ -33,22 +49,6 @@ export default function HeroCarousel() {
             <a href={WHATSAPP_URL} target="_blank" rel="noreferrer" className="home-hero__text-action">Order on WhatsApp</a>
           </motion.div>
         </div>
-
-        <motion.div
-          className="home-hero__portrait"
-          initial={reduceMotion ? false : { opacity: 0, clipPath: 'inset(0 0 100% 0)' }}
-          animate={{ opacity: 1, clipPath: 'inset(0 0 0% 0)' }}
-          transition={{ duration: 1.05, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-        >
-          <Image
-            src="/uploads/aries11-brand-collection-hero.webp"
-            alt="A collection of Aries 11 Bakehouse treats"
-            fill
-            priority
-            sizes="(max-width: 767px) 100vw, 56vw"
-          />
-          <span className="home-hero__portrait-note">Freshly made<br />for your table</span>
-        </motion.div>
       </div>
 
       <a href="#menu-preview" className="home-hero__scroll-cue">

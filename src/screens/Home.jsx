@@ -58,7 +58,7 @@ export default function Home({ categories: initialCategories, featured: initialF
         ) : featured?.length > 0 ? (
           <ScrollRevealGroup className="home-product-grid">
             {featured.map((product) => (
-              <ProductCard key={product.slug} product={product} />
+              <ProductCard key={product.slug} product={product} variant="floating" />
             ))}
           </ScrollRevealGroup>
         ) : null}
