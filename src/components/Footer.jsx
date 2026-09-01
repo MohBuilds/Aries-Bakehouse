@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { ArrowUpRight } from 'lucide-react';
 import BrandLogo from './BrandLogo.jsx';
 
 const FOOTER_LINKS = [
@@ -15,9 +16,14 @@ export default function Footer() {
   return (
     <footer className="site-footer">
       <div className="container site-footer__inner">
+        <div className="site-footer__statement">
+          <span>Still thinking about it?</span>
+          <h2>Let’s bake something<br /><em>worth gathering for.</em></h2>
+          <Link to="/menu" className="site-footer__menu-cta">Explore the menu <ArrowUpRight size={18} aria-hidden="true" /></Link>
+        </div>
         <div className="site-footer__brand">
           <BrandLogo tone="light" />
-          <p>Made to order in Abeokuta.</p>
+          <p>Made to order in Abeokuta.<br />Please allow at least 24 hours.</p>
         </div>
 
         <nav className="site-footer__nav" aria-label="Footer navigation">

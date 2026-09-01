@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink, useLocation } from 'react-router-dom';
 import { useCart } from '../context/CartContext.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useCategories } from '../hooks/useCatalog.js';
@@ -8,6 +8,7 @@ import ThemeToggle from './ThemeToggle.jsx';
 import BrandLogo from './BrandLogo.jsx';
 
 export default function SiteHeader() {
+  const { pathname } = useLocation();
   const { count, openDrawer } = useCart();
   const { isRealAccount, customer, signOut } = useAuth();
   const { data: categories } = useCategories();
@@ -16,9 +17,17 @@ export default function SiteHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [menuDropdownOpen, setMenuDropdownOpen] = useState(false);
   const [accountDropdownOpen, setAccountDropdownOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const mobileMenuRef = useRef(null);
   const mobileMenuButtonRef = useRef(null);
   const mobileMenuCloseRef = useRef(null);
+
+  useEffect(() => {
+    const updateHeader = () => setScrolled(window.scrollY > 24);
+    updateHeader();
+    window.addEventListener('scroll', updateHeader, { passive: true });
+    return () => window.removeEventListener('scroll', updateHeader);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -91,10 +100,10 @@ export default function SiteHeader() {
         </div>
       )}
 
-      <header className="site-header">
+      <header className={`site-header${pathname === '/' ? ' site-header--over-hero' : ''}${scrolled ? ' is-scrolled' : ''}`}>
         <div className="container site-header__inner">
           <Link to="/" aria-label="Aries 11 Bakehouse home" className="site-header__brand-link">
-            <BrandLogo className="site-header__logo" />
+            <BrandLogo tone={pathname === '/' && !scrolled ? 'light' : undefined} className="site-header__logo" />
           </Link>
 
           <nav className="desktop-nav" aria-label="Main navigation">

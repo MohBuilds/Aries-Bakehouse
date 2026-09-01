@@ -1,24 +1,21 @@
 import { Link } from 'react-router-dom';
-import { Button } from './ui/button.jsx';
+import { ArrowUpRight } from 'lucide-react';
 
 export default function CounterRail({ categories }) {
   if (!categories?.length) return null;
 
   return (
-    <section className="container category-showcase" aria-labelledby="category-showcase-title">
-      <div className="home-section__header">
+    <section id="menu-preview" className="container category-showcase category-showcase--editorial" aria-labelledby="category-showcase-title">
+      <div className="category-showcase__editorial-heading">
+        <h2 id="category-showcase-title">The counter is yours.</h2>
         <div>
-          <p className="home-section__kicker">The bakehouse menu</p>
-          <h2 id="category-showcase-title">Choose your craving</h2>
-          <p>Start with a category, then configure the details.</p>
+          <p>Choose a category, then make every detail your own.</p>
+          <Link to="/menu">View the full menu <ArrowUpRight size={15} aria-hidden="true" /></Link>
         </div>
-        <Button asChild variant="secondary">
-          <Link to="/menu">View full menu</Link>
-        </Button>
       </div>
 
       <div className="category-showcase__grid" role="list">
-        {categories.map((category) => (
+        {categories.map((category, index) => (
           <Link
             key={category.id}
             to={`/menu/${category.id}`}
@@ -29,7 +26,8 @@ export default function CounterRail({ categories }) {
               <strong>{category.name}</strong>
               {category.desc && <span>{category.desc}</span>}
             </span>
-            <span className="category-showcase__arrow" aria-hidden="true">&rarr;</span>
+            <span className="category-showcase__index" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+            <ArrowUpRight className="category-showcase__arrow" size={22} aria-hidden="true" />
           </Link>
         ))}
       </div>
