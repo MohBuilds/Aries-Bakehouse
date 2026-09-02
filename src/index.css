@@ -3201,227 +3201,6 @@ input[readonly] {
   to { transform: scaleX(1); }
 }
 
-/* Counter scroller — scroll-scrubbed two-frame product showcase.
-   The outer section is tall (one viewport per product plus runway); the
-   inner viewport pins while scroll progress drives the cross-fades. */
-.counter-scroller {
-  height: 340svh;
-  position: relative;
-}
-
-.counter-scroller__viewport {
-  position: sticky;
-  top: 0;
-  min-height: 100svh;
-  display: flex;
-  align-items: center;
-  overflow: hidden;
-}
-
-.counter-scroller__inner {
-  display: grid;
-  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
-  gap: var(--space-8);
-  align-items: center;
-  width: 100%;
-}
-
-.counter-scroller__copy h2 {
-  font-size: clamp(32px, 4vw, 44px);
-  font-weight: 800;
-  line-height: 1.15;
-  margin: 6px 0 0;
-}
-
-.counter-scroller__panel {
-  margin-top: var(--space-6);
-  min-height: 220px;
-}
-
-.counter-scroller__kicker {
-  color: var(--color-caramel);
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.counter-scroller__panel h3 {
-  font-size: clamp(22px, 2.6vw, 30px);
-  font-weight: 800;
-  line-height: 1.2;
-  margin: 10px 0 0;
-}
-
-.counter-scroller__panel p {
-  color: var(--color-text-muted);
-  font-size: 15px;
-  line-height: 1.6;
-  margin: 12px 0 0;
-  max-width: 420px;
-}
-
-.counter-scroller__panel .btn {
-  margin-top: var(--space-5);
-}
-
-.counter-scroller__steps {
-  display: flex;
-  gap: 8px;
-  margin-top: var(--space-6);
-}
-
-.counter-scroller__steps span {
-  width: 28px;
-  height: 4px;
-  border-radius: var(--radius-pill);
-  background: var(--color-border);
-  transition: background 200ms ease;
-}
-
-.counter-scroller__steps span.is-active {
-  background: var(--color-choc);
-}
-
-.counter-scroller__media {
-  position: relative;
-  aspect-ratio: 4 / 5;
-  max-height: 76svh;
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  background: var(--color-white);
-  box-shadow: 0 2px 6px rgba(50,26,23,0.08);
-}
-
-.counter-scroller__frame {
-  position: absolute;
-  inset: 0;
-}
-
-.counter-scroller__frame img,
-.counter-scroller__frame video {
-  position: absolute;
-  inset: -16px; /* bleed past the panel so the scroll drift never shows edges */
-  width: calc(100% + 32px);
-  height: calc(100% + 32px);
-  object-fit: cover;
-}
-
-.counter-scroller__frame.is-contained img,
-.counter-scroller__frame.is-contained video {
-  object-fit: contain;
-  padding: 32px;
-}
-
-.counter-scroller--static {
-  height: auto;
-  padding: var(--space-8) 0;
-}
-
-.counter-scroller__static-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--space-5);
-  margin-top: var(--space-6);
-}
-
-.counter-scroller__static-card {
-  display: grid;
-  gap: 10px;
-  text-decoration: none;
-  color: inherit;
-  background: var(--color-white);
-  border-radius: var(--radius-lg);
-  padding: 18px;
-  box-shadow: 0 2px 6px rgba(50,26,23,0.08);
-}
-
-.counter-scroller__static-card img {
-  width: 100%;
-  aspect-ratio: 4 / 3;
-  object-fit: cover;
-  border-radius: var(--radius-md);
-}
-
-.counter-scroller__static-card strong {
-  font-size: 16px;
-}
-
-.counter-scroller__static-card span {
-  color: var(--color-text-muted);
-  font-size: 14px;
-  line-height: 1.5;
-}
-
-@media (max-width: 1023px) {
-  .counter-scroller {
-    height: 300svh;
-  }
-
-  .counter-scroller__inner {
-    grid-template-columns: minmax(0, 1fr);
-    gap: var(--space-5);
-    align-content: center;
-  }
-
-  .counter-scroller__media {
-    order: -1;
-    aspect-ratio: 4 / 3;
-    max-height: 44svh;
-    width: 100%;
-  }
-
-  .counter-scroller__panel {
-    margin-top: var(--space-4);
-    min-height: 200px;
-  }
-
-  .counter-scroller__static-grid {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
-
-@media (max-width: 767px) {
-  .counter-scroller {
-    /* Shorter scroll runway on phones — the same 100svh-per-product pace
-       used on desktop reads as "stuck" on a small screen with less to
-       look at per segment. */
-    height: 240svh;
-  }
-
-  .counter-scroller__inner {
-    padding-top: var(--space-6);
-    padding-bottom: var(--space-6);
-  }
-
-  .counter-scroller__media {
-    aspect-ratio: 4 / 3;
-    max-height: 36svh;
-  }
-
-  .counter-scroller__copy h2 {
-    font-size: 28px;
-  }
-
-  .counter-scroller__panel {
-    margin-top: var(--space-3);
-    min-height: 180px;
-  }
-
-  .counter-scroller__panel h3 {
-    font-size: 20px;
-  }
-
-  .counter-scroller__panel p {
-    font-size: 14px;
-    max-width: none;
-  }
-
-  .counter-scroller--static {
-    padding: var(--space-6) 0;
-  }
-}
-
 /* ============================================================
    Digital Bakehouse Theatre — storefront foundation + home
    ============================================================ */
@@ -3803,23 +3582,25 @@ input[readonly] {
 .counter-scroller__stage {
   position: relative;
   width: 100%;
-  height: min(62svh, 680px);
+  height: 100%;
+  max-height: min(65svh, 620px);
   display: flex;
   align-items: center;
   justify-content: center;
   isolation: isolate;
   background: transparent;
+  overflow: visible;
 }
 
 .counter-scroller__ambient-glow {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 75%;
-  height: 75%;
+  width: 80%;
+  height: 80%;
   transform: translate(-50%, -50%);
-  background: radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--color-caramel) 20%, transparent), transparent 68%);
-  filter: blur(40px);
+  background: radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--color-caramel) 22%, transparent), transparent 70%);
+  filter: blur(44px);
   pointer-events: none;
   z-index: 0;
 }
@@ -3828,10 +3609,10 @@ input[readonly] {
 .counter-scroller__floating-img {
   position: relative;
   z-index: 1;
-  width: 100%;
-  max-width: 580px;
-  height: 100%;
-  max-height: 520px;
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  max-height: min(58svh, 520px);
   object-fit: contain;
   filter: drop-shadow(0 28px 48px rgba(0, 0, 0, 0.45));
   transition: transform 600ms cubic-bezier(0.16, 1, 0.3, 1), opacity 300ms ease;
@@ -10564,14 +10345,20 @@ html.dark .floating-support {
   position: absolute;
   inset: auto 0 0 0;
   padding: var(--space-6);
-  background: linear-gradient(0deg, var(--color-choc) 0%, color-mix(in srgb, var(--color-choc) 80%, transparent) 60%, transparent 100%);
+  background: linear-gradient(0deg, var(--color-choc) 0%, color-mix(in srgb, var(--color-choc) 85%, transparent) 70%, transparent 100%);
   color: var(--color-cream);
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
 }
 
-.menu-wall-stage__caption strong {
+.menu-wall-stage__caption-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.menu-wall-stage__caption-meta strong {
   font-size: 11px;
   font-weight: 800;
   text-transform: uppercase;
@@ -10579,10 +10366,39 @@ html.dark .floating-support {
   color: var(--color-caramel);
 }
 
-.menu-wall-stage__caption span {
-  font-size: 14px;
+.menu-wall-stage__caption-price {
+  font-size: 13px;
+  font-weight: 800;
   color: var(--color-white);
-  line-height: 1.4;
+}
+
+.menu-wall-stage__caption p {
+  margin: 0 0 10px;
+  font-size: 14px;
+  color: color-mix(in srgb, var(--color-cream) 84%, transparent);
+  line-height: 1.5;
+}
+
+.menu-wall-stage__cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 18px;
+  border-radius: var(--radius-pill);
+  background: var(--color-cream);
+  color: var(--color-choc);
+  font-size: 13px;
+  font-weight: 800;
+  text-decoration: none;
+  align-self: flex-start;
+  transition: all 180ms ease;
+}
+
+.menu-wall-stage__cta:hover {
+  background: var(--color-caramel);
+  color: var(--color-white);
+  transform: translateY(-2px);
 }
 
 @media (max-width: 1023px) {
