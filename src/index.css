@@ -31,6 +31,7 @@
 
   --font-sans: 'DM Sans', sans-serif;
   --font-serif: 'Cormorant Garamond', serif;
+  --font-display: 'Cormorant Garamond', serif;
   --font-size-label: 12px;
   --font-size-body: 14px;
   --font-size-title: 16px;
@@ -3242,8 +3243,8 @@ input[readonly] {
   position: relative;
   min-height: calc(100svh - 72px);
   overflow: hidden;
-  background: #251310;
-  color: var(--color-cream);
+  background: var(--color-panel);
+  color: var(--color-panel-contrast);
 }
 
 .home-hero__backdrop {
@@ -3299,7 +3300,7 @@ input[readonly] {
 .home-hero__static-copy h1 {
   max-width: 760px;
   margin: 0;
-  color: var(--color-white);
+  color: var(--color-panel-contrast);
   font-size: clamp(54px, 7.2vw, 108px);
   font-weight: 800;
   letter-spacing: -0.04em;
@@ -3315,7 +3316,7 @@ input[readonly] {
 .home-hero__static-description {
   max-width: 540px;
   margin: 26px 0 0;
-  color: color-mix(in srgb, var(--color-cream) 78%, transparent);
+  color: color-mix(in srgb, var(--color-panel-contrast) 78%, transparent);
   font-size: 15px;
   line-height: 1.65;
 }
@@ -3562,8 +3563,8 @@ input[readonly] {
    ============================================================ */
 .counter-scroller-section {
   padding: clamp(54px, 7vw, 90px) 0;
-  background: var(--color-choc);
-  color: var(--color-white);
+  background: var(--color-panel);
+  color: var(--color-panel-contrast);
   position: relative;
   overflow: hidden;
 }
@@ -3577,13 +3578,13 @@ input[readonly] {
   gap: var(--space-5);
   margin-bottom: clamp(24px, 4vw, 44px);
   padding-bottom: var(--space-4);
-  border-bottom: 1px solid color-mix(in srgb, var(--color-cream) 14%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--color-panel-contrast) 14%, transparent);
 }
 
 .counter-scroller__heading h2 {
   max-width: 620px;
   margin: 4px 0 0;
-  color: var(--color-white);
+  color: var(--color-panel-contrast);
   font-size: clamp(30px, 4.5vw, 54px);
   line-height: 1.05;
   letter-spacing: -0.03em;
@@ -3592,7 +3593,7 @@ input[readonly] {
 .counter-scroller__heading p {
   max-width: 420px;
   margin: 8px 0 0;
-  color: color-mix(in srgb, var(--color-cream) 74%, transparent);
+  color: color-mix(in srgb, var(--color-panel-contrast) 74%, transparent);
   font-size: 14px;
   line-height: 1.55;
 }
@@ -3611,7 +3612,7 @@ input[readonly] {
   border: 1px solid rgba(255, 255, 255, 0.16);
   background: rgba(255, 255, 255, 0.08);
   backdrop-filter: blur(12px);
-  color: var(--color-cream);
+  color: var(--color-panel-contrast);
   display: grid;
   place-items: center;
   cursor: pointer;
@@ -3624,7 +3625,7 @@ input[readonly] {
   transform: scale(1.08);
   background: rgba(255, 255, 255, 0.2);
   border-color: rgba(255, 255, 255, 0.35);
-  color: var(--color-white);
+  color: var(--color-panel-contrast);
 }
 
 /* Pagination Capsule Dots */
@@ -3747,7 +3748,7 @@ input[readonly] {
 .counter-scroller__copy h3 {
   max-width: 520px;
   margin: 4px 0 0;
-  color: var(--color-white);
+  color: var(--color-panel-contrast);
   font-size: clamp(28px, 3.7vw, 48px);
   line-height: 1.05;
   letter-spacing: -0.03em;
@@ -3756,7 +3757,7 @@ input[readonly] {
 .counter-scroller__copy p {
   max-width: 440px;
   margin: 8px 0 0;
-  color: color-mix(in srgb, var(--color-cream) 76%, transparent);
+  color: color-mix(in srgb, var(--color-panel-contrast) 76%, transparent);
   font-size: 15px;
   line-height: 1.65;
 }
@@ -3767,8 +3768,8 @@ input[readonly] {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: var(--color-cream);
-  color: var(--color-choc);
+  background: var(--color-panel-contrast);
+  color: var(--color-panel);
   padding: 12px 24px;
   border-radius: var(--radius-pill);
   font-weight: 800;
@@ -3778,7 +3779,7 @@ input[readonly] {
 
 .counter-scroller__cta:hover {
   background: var(--color-caramel);
-  color: var(--color-white);
+  color: var(--color-panel-contrast);
   transform: translateY(-2px);
 }
 
@@ -6062,6 +6063,11 @@ html.dark .floating-support {
 }
 
 .page-kicker--dark {
+  color: var(--color-caramel);
+}
+
+/* On permanently-dark panels (counter, hero, footer) the kicker stays caramel regardless of mode */
+.page-kicker--light {
   color: var(--color-caramel);
 }
 
@@ -10608,8 +10614,8 @@ html.dark .floating-support {
    LUXURY DARK CLOSING FOOTER
    ========================================================================== */
 .site-footer {
-  background: var(--color-choc);
-  color: var(--color-cream);
+  background: var(--color-panel);
+  color: var(--color-panel-contrast);
   position: relative;
   overflow: hidden;
 }
