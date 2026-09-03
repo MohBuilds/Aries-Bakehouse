@@ -37,7 +37,7 @@ const SHOWCASE = [
     href: '/product/cake-parfait',
     cta: 'Choose your parfait',
     video: '/uploads/assembly/cake-parfait-final.mp4',
-    fallback: '/uploads/aries11-caketreats-parfait-chocolate.png',
+    fallback: '/uploads/aries11-caketreats-icecreamtwist-chocolate.png',
   },
   {
     id: 'pastries',
@@ -59,7 +59,7 @@ const SHOWCASE = [
     href: '/product/small-chops-platter',
     cta: 'Choose a platter',
     video: '/uploads/assembly/small-chops-final.mp4',
-    fallback: '/uploads/aries11-smallchops-platter-large.webp',
+    fallback: '/uploads/aries11-smallchops-platter-small.webp',
   },
 ];
 

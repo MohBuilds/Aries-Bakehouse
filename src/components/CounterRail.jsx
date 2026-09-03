@@ -34,12 +34,12 @@ const CATEGORY_META = {
     href: '/product/brownie-box',
   },
   'cake-treats': {
-    image: '/uploads/aries11-caketreats-parfait-chocolate.png',
-    alt: 'Aries 11 Cake Parfait',
+    image: '/uploads/aries11-caketreats-icecreamtwist-chocolate.png',
+    alt: 'Aries 11 Ice Cream Twist',
     price: 'From ₦3,000',
-    type: 'Layered Parfait',
-    tagline: 'Chocolate or red velvet sponge layered with silky cream, served chilled.',
-    cta: 'Choose your parfait',
+    type: 'Chilled Treat',
+    tagline: 'Chocolate or red velvet sponge twisted with icy cream and crunches — served cold.',
+    cta: 'Choose your treat',
     href: '/product/cake-parfait',
   },
   'pastries': {
@@ -52,7 +52,7 @@ const CATEGORY_META = {
     href: '/product/mixed-pastry-tray',
   },
   'small-chops': {
-    image: '/uploads/aries11-smallchops-platter-large.webp',
+    image: '/uploads/aries11-smallchops-platter-small.webp',
     alt: 'Aries 11 Small Chops Platter',
     price: 'From ₦4,000',
     type: 'Party Platter',
