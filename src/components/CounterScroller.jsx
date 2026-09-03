@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, useMotionValue, useMotionValueEvent, useReducedMotion, useTransform } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { ArrowUpRight, Sparkles } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ArrowUpRight, Sparkles } from 'lucide-react';
 
 const SHOWCASE = [
   {
@@ -166,6 +166,25 @@ export default function CounterScroller() {
     setActive((current) => (current === nextActive ? current : nextActive));
   });
 
+  function scrollToStep(targetIndex) {
+    const element = trackRef.current;
+    if (!element) return;
+    const rect = element.getBoundingClientRect();
+    const distance = rect.height - window.innerHeight;
+    const targetScrollY = window.scrollY + rect.top + (targetIndex / (SHOWCASE.length - 0.8)) * distance;
+    window.scrollTo({ top: targetScrollY, behavior: 'smooth' });
+  }
+
+  function handleNext() {
+    const nextIdx = (active + 1) % SHOWCASE.length;
+    scrollToStep(nextIdx);
+  }
+
+  function handlePrev() {
+    const prevIdx = (active - 1 + SHOWCASE.length) % SHOWCASE.length;
+    scrollToStep(prevIdx);
+  }
+
   if (reduceMotion) {
     return (
       <section className="container counter-scroller counter-scroller--static" aria-labelledby="assembly-title">
@@ -189,9 +208,34 @@ export default function CounterScroller() {
     <section ref={trackRef} className="counter-scroller" aria-labelledby="assembly-title">
       <div className="counter-scroller__viewport">
         <div className="container counter-scroller__heading">
-          <span className="page-kicker page-kicker--light">The Assembly Theatre</span>
-          <h2 id="assembly-title">See every bake come together.</h2>
-          <p>Handcrafted, configured by you, and baked fresh for your moment.</p>
+          <div>
+            <span className="page-kicker page-kicker--light">The Assembly Theatre</span>
+            <h2 id="assembly-title">See every bake come together.</h2>
+            <p>Handcrafted, configured by you, and baked fresh for your moment.</p>
+          </div>
+
+          {/* Sideways Navigation Arrows */}
+          <div className="counter-scroller__controls">
+            <button
+              type="button"
+              onClick={handlePrev}
+              aria-label="Previous signature bake"
+              className="counter-scroller__nav-btn"
+            >
+              <ArrowLeft size={18} aria-hidden="true" />
+            </button>
+            <span className="counter-scroller__nav-counter">
+              {String(active + 1).padStart(2, '0')} / {String(SHOWCASE.length).padStart(2, '0')}
+            </span>
+            <button
+              type="button"
+              onClick={handleNext}
+              aria-label="Next signature bake"
+              className="counter-scroller__nav-btn"
+            >
+              <ArrowRight size={18} aria-hidden="true" />
+            </button>
+          </div>
         </div>
 
         <motion.div className="counter-scroller__rail" style={{ x: railX, width: `${SHOWCASE.length * 100}%` }}>
