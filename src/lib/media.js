@@ -11,10 +11,10 @@ const RETIRED_IMAGE_REPLACEMENTS = {
 
 const CATEGORY_IMAGE_FALLBACKS = {
   'banana-bread': BANANA_BREAD_SINGLE_FALLBACK,
-  'small-chops': '/uploads/aries11-smallchops-platter-large.webp',
+  'small-chops': '/uploads/aries11-smallchops-platter-small.webp',
   'brownies-cookies': '/uploads/aries11-brownies-box-9-biscoff.webp',
   pastries: '/uploads/aries11-pastries-mixedtray-complete.webp',
-  'cake-treats': '/uploads/aries11-caketreats-parfait-redvelvet.png',
+  'cake-treats': '/uploads/aries11-caketreats-icecreamtwist-chocolate.png',
 };
 
 export function normalizeCatalogImage(src, category) {
