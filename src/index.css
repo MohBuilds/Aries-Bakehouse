@@ -10420,9 +10420,18 @@ html.dark .floating-support {
   border-radius: var(--radius-pill);
 }
 
-.catalogue-stage-secondary-cta {
-  padding: 14px 22px;
-  border-radius: var(--radius-pill);
+.catalogue-stage-link {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--color-cocoa);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  padding: 8px 12px;
+  transition: color 180ms ease;
+}
+
+.catalogue-stage-link:hover {
+  color: var(--color-choc);
 }
 
 @media (max-width: 899px) {
@@ -10435,40 +10444,6 @@ html.dark .floating-support {
   .catalogue-carousel-header {
     flex-direction: column;
     align-items: flex-start;
-  }
-}
-
-@media (max-width: 1023px) {
-  .menu-wall-layout {
-    grid-template-columns: 1fr;
-  }
-  .menu-wall-stage {
-    display: none;
-  }
-  .menu-wall-item__mobile-preview {
-    display: block;
-    height: 180px;
-    background: var(--color-choc);
-    overflow: hidden;
-  }
-  .menu-wall-item__mobile-preview img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-}
-
-@media (max-width: 600px) {
-  .menu-wall-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  .menu-wall-item__link {
-    padding: var(--space-4);
-  }
-  .menu-wall-item__desc,
-  .menu-wall-item__meta {
-    margin-left: 0;
   }
 }
 
@@ -10520,13 +10495,7 @@ html.dark .floating-support {
   border: 1px solid var(--color-border);
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
-}
-
-.ordering-timeline__card-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  gap: var(--space-3);
 }
 
 .ordering-timeline__number {
@@ -10536,30 +10505,10 @@ html.dark .floating-support {
   line-height: 1;
 }
 
-.ordering-timeline__icon-badge {
-  width: 38px;
-  height: 38px;
-  border-radius: var(--radius-pill);
-  display: grid;
-  place-items: center;
-  background: color-mix(in srgb, var(--color-choc) 6%, transparent);
-  color: var(--color-choc);
-}
-
-.ordering-timeline__kicker {
-  display: block;
-  font-size: 11px;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--color-olive);
-  margin-bottom: 4px;
-}
-
 .ordering-timeline__title {
   font-size: 18px;
   font-weight: 800;
-  margin: 0 0 8px;
+  margin: 0 0 4px;
   color: var(--color-choc);
 }
 

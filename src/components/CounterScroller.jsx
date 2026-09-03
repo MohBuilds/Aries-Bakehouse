@@ -3,66 +3,61 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, useMotionValue, useMotionValueEvent, useReducedMotion, useTransform } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, ArrowUpRight, Sparkles } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ArrowUpRight } from 'lucide-react';
 
 const SHOWCASE = [
   {
     id: 'banana-bread',
     name: 'Banana Bread',
-    kicker: 'The Signature Loaf',
-    title: 'Your loaf, built layer by layer',
-    copy: 'Choose your loaf size, then finish it with Biscoff, Oreo, toasted coconut, raisins, walnut crunch, or melted Belgian chocolate.',
+    kicker: 'Signature Loaf',
+    title: 'Your loaf, built layer by layer.',
+    copy: 'Fresh banana puree baked with your choice of 7 artisan crunches, Belgian chocolate, or dried fruit.',
     href: '/product/signature-banana-bread',
     cta: 'Build your loaf',
-    tags: ['Fresh Banana Puree', '7 Crunch Toppings', 'Mini or Standard'],
     video: '/uploads/assembly/banana-bread-final.mp4',
     fallback: '/uploads/aries11-bananabread-topping-mixed.webp',
   },
   {
     id: 'brownies',
     name: 'Brownie Boxes',
-    kicker: 'Rich Fudgy Squares',
-    title: 'Fudgy squares, packed your way',
-    copy: 'Choose a box of 4, 6, 9, or 16 fudgy squares. Customized with Biscoff swirl, crushed Oreo, coconut flakes, or white & dark chocolate.',
+    kicker: 'Fudgy Squares',
+    title: 'Fudgy squares, packed your way.',
+    copy: 'Boxes of 4, 6, 9 or 16 fudgy brownie squares finished with Biscoff, Oreo, coconut, or melted chocolate.',
     href: '/product/brownie-box',
     cta: 'Build a brownie box',
-    tags: ['Pure Dark Cocoa', 'Custom Box Sizes', 'Topping Swirls'],
     video: '/uploads/assembly/brownies-final.mp4',
     fallback: '/uploads/aries11-brownies-box-4.png',
   },
   {
     id: 'cake-parfait',
     name: 'Cake Parfait',
-    kicker: 'Layered Chilled Treat',
-    title: 'Cake, cream, and one cool finish',
-    copy: 'Decadent chocolate or red velvet sponge layered with silky whipped cream and crunches, made fresh to order in two individual sizes.',
+    kicker: 'Chilled Treat',
+    title: 'Cake, cream, and one cool finish.',
+    copy: 'Velvet chocolate or vanilla sponge layered with whipped cream and crunches, served ice-cold.',
     href: '/product/cake-parfait',
     cta: 'Choose your parfait',
-    tags: ['Moist Velvet Sponge', 'Silky Cream Layers', 'Served Chilled'],
     video: '/uploads/assembly/cake-parfait-final.mp4',
     fallback: '/uploads/aries11-caketreats-parfait-chocolate.png',
   },
   {
     id: 'pastries',
     name: 'Pastry Trays',
-    kicker: 'Savoury Golden Bakes',
-    title: 'Golden pastries, gathered for the table',
-    copy: 'Suya meat pie, spiced fish pie, and flaky sausage rolls packed as a mixed sharing tray or a full tray of your absolute favourite.',
+    kicker: 'Savoury Bakes',
+    title: 'Golden pastries, gathered for the table.',
+    copy: 'Flaky suya meat pies, spiced fish pies, and golden sausage rolls packed for sharing.',
     href: '/product/mixed-pastry-tray',
-    cta: 'Choose your pastries',
-    tags: ['Flaky Butter Crust', 'Suya Spiced Beef', 'Party Sharing Trays'],
+    cta: 'Choose a pastry tray',
     video: '/uploads/assembly/pastries-final.mp4',
     fallback: '/uploads/aries11-pastries-mixedtray-complete.webp',
   },
   {
     id: 'small-chops',
     name: 'Small Chops',
-    kicker: 'Abeokuta Party Platter',
-    title: 'A full party platter comes together',
-    copy: 'Freshly fried puff-puff, crispy beef samosas, golden spring rolls, and peppered bites, arranged fresh on a platter for your gathering.',
+    kicker: 'Party Platter',
+    title: 'A full party platter comes together.',
+    copy: 'Freshly fried puff-puff, crispy beef samosas, and golden spring rolls arranged on platters.',
     href: '/product/small-chops-platter',
     cta: 'Choose a platter',
-    tags: ['Hot Crispy Bites', 'Platter Arrangements', 'Celebration Ready'],
     video: '/uploads/assembly/small-chops-final.mp4',
     fallback: '/uploads/aries11-smallchops-platter-large.webp',
   },
@@ -120,11 +115,8 @@ function FloatingProductMedia({ product, active, allowVideo }) {
   }, [active, allowVideo]);
 
   return (
-    <div className="counter-scroller__stage counter-scroller__stage--frameless" aria-hidden="true">
+    <div className="counter-scroller__stage" aria-hidden="true">
       <div className="counter-scroller__ambient-glow" />
-      <span className="counter-scroller__ghost-name">{product.name}</span>
-      
-      {/* Floating Product Render / Video */}
       {allowVideo ? (
         <video
           ref={videoRef}
@@ -142,11 +134,6 @@ function FloatingProductMedia({ product, active, allowVideo }) {
           className="counter-scroller__floating-img"
         />
       )}
-      
-      <div className="counter-scroller__stage-badge">
-        <Sparkles size={13} aria-hidden="true" />
-        <span>Made to order</span>
-      </div>
     </div>
   );
 }
@@ -211,18 +198,17 @@ export default function CounterScroller() {
           <div>
             <span className="page-kicker page-kicker--light">The Assembly Theatre</span>
             <h2 id="assembly-title">See every bake come together.</h2>
-            <p>Handcrafted, configured by you, and baked fresh for your moment.</p>
+            <p>Handcrafted, configured by you, and baked fresh with 24 hours notice.</p>
           </div>
 
-          {/* Sideways Navigation Arrows */}
           <div className="counter-scroller__controls">
             <button
               type="button"
               onClick={handlePrev}
-              aria-label="Previous signature bake"
+              aria-label="Previous bake"
               className="counter-scroller__nav-btn"
             >
-              <ArrowLeft size={18} aria-hidden="true" />
+              <ArrowLeft size={16} aria-hidden="true" />
             </button>
             <span className="counter-scroller__nav-counter">
               {String(active + 1).padStart(2, '0')} / {String(SHOWCASE.length).padStart(2, '0')}
@@ -230,10 +216,10 @@ export default function CounterScroller() {
             <button
               type="button"
               onClick={handleNext}
-              aria-label="Next signature bake"
+              aria-label="Next bake"
               className="counter-scroller__nav-btn"
             >
-              <ArrowRight size={18} aria-hidden="true" />
+              <ArrowRight size={16} aria-hidden="true" />
             </button>
           </div>
         </div>
@@ -242,31 +228,22 @@ export default function CounterScroller() {
           {SHOWCASE.map((product, index) => (
             <article key={product.id} className="counter-scroller__slide" style={{ width: `${100 / SHOWCASE.length}%` }}>
               <div className="container counter-scroller__inner">
-                {/* 1. Frameless Floating Media Stage */}
+                {/* Clean Floating Media Stage */}
                 <FloatingProductMedia
                   product={product}
                   active={index === active}
                   allowVideo={!saveData}
                 />
 
-                {/* 2. Editorial Story & Configuration Tags */}
+                {/* Refined Copy Panel */}
                 <div className="counter-scroller__copy">
-                  <span className="counter-scroller__count">
-                    {String(index + 1).padStart(2, '0')} / {String(SHOWCASE.length).padStart(2, '0')}
-                  </span>
                   <span className="counter-scroller__slide-kicker">{product.kicker}</span>
                   <h3>{product.title}</h3>
                   <p>{product.copy}</p>
 
-                  <div className="counter-scroller__tags" aria-label="Bake features">
-                    {product.tags.map((tag) => (
-                      <span key={tag} className="counter-scroller__tag">{tag}</span>
-                    ))}
-                  </div>
-
                   <Link to={product.href} className="btn btn-primary counter-scroller__cta">
                     <span>{product.cta}</span>
-                    <ArrowUpRight size={16} aria-hidden="true" />
+                    <ArrowUpRight size={15} aria-hidden="true" />
                   </Link>
                 </div>
               </div>
@@ -274,7 +251,6 @@ export default function CounterScroller() {
           ))}
         </motion.div>
 
-        {/* Bottom Horizontal Progress Bar */}
         <div className="container counter-scroller__progress" aria-hidden="true">
           <motion.span style={{ scaleX: progressScale }} />
         </div>
