@@ -10,18 +10,18 @@ const WHATSAPP_SUPPORT_URL = 'https://wa.me/2348121145785?text=Hello%20Aries%201
 export default function HeroCarousel() {
   const reduceMotion = useReducedMotion();
   const reveal = (delay = 0) => ({
-    initial: reduceMotion ? false : { opacity: 0, y: 20 },
+    initial: reduceMotion ? false : { opacity: 0, y: 14 },
     animate: { opacity: 1, y: 0 },
-    transition: { duration: 0.7, delay, ease: [0.16, 1, 0.3, 1] },
+    transition: { duration: 0.52, delay, ease: [0.16, 1, 0.3, 1] },
   });
 
   return (
     <section className="home-hero home-hero--static" aria-labelledby="home-hero-title">
       <motion.div
         className="home-hero__backdrop"
-        initial={reduceMotion ? false : { opacity: 0, scale: 1.04 }}
+        initial={reduceMotion ? false : { opacity: 0, scale: 1.025 }}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+        transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
       >
         <Image
           src="/uploads/aries11-brand-collection-hero.webp"
@@ -36,17 +36,17 @@ export default function HeroCarousel() {
 
       <div className="container home-hero__static-inner">
         <div className="home-hero__static-copy">
-          <motion.p className="home-hero__edition" {...reveal(0.05)}>
+          <motion.p className="home-hero__edition" {...reveal(0.03)}>
             Made to order · Abeokuta
           </motion.p>
-          <motion.h1 id="home-hero-title" {...reveal(0.12)}>
+          <motion.h1 id="home-hero-title" {...reveal(0.09)}>
             Baked for<br />
             <em>the moment.</em>
           </motion.h1>
-          <motion.p className="home-hero__static-description" {...reveal(0.2)}>
+          <motion.p className="home-hero__static-description" {...reveal(0.15)}>
             Banana bread, brownie boxes, pastries, cake treats and party platters—configured by you and baked fresh with 24 hours notice.
           </motion.p>
-          <motion.div className="home-hero__static-actions" {...reveal(0.28)}>
+          <motion.div className="home-hero__static-actions" {...reveal(0.21)}>
             <Link to="/menu" className="btn home-hero__primary-action">
               <span>Explore the menu</span>
               <ArrowUpRight size={16} aria-hidden="true" />

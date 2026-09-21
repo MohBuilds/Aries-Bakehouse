@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import Image from 'next/image';
+import { motion, useReducedMotion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, ArrowUpRight } from 'lucide-react';
 
@@ -65,17 +66,30 @@ const SHOWCASE = [
 
 function FloatingProductMedia({ product, active, allowVideo }) {
   const videoRef = useRef(null);
+  const holdTimer = useRef(null);
 
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
+    window.clearTimeout(holdTimer.current);
     if (active && allowVideo) {
       video.currentTime = 0;
       video.play().catch(() => {});
     } else {
       video.pause();
     }
+    return () => window.clearTimeout(holdTimer.current);
   }, [active, allowVideo]);
+
+  const holdFinalFrame = () => {
+    if (!active) return;
+    holdTimer.current = window.setTimeout(() => {
+      const video = videoRef.current;
+      if (!video) return;
+      video.currentTime = 0;
+      video.play().catch(() => {});
+    }, 1400);
+  };
 
   return (
     <div className="counter-scroller__stage" aria-hidden="true">
@@ -84,16 +98,20 @@ function FloatingProductMedia({ product, active, allowVideo }) {
         <video
           ref={videoRef}
           src={product.video}
+          poster={product.fallback}
           muted
-          loop
           playsInline
-          preload={active ? 'auto' : 'metadata'}
+          preload={active ? 'auto' : 'none'}
+          onEnded={holdFinalFrame}
           className={`counter-scroller__floating-video${active ? ' is-active' : ''}`}
         />
       ) : (
-        <img
+        <Image
           src={product.fallback}
           alt={product.name}
+          width={640}
+          height={640}
+          sizes="(max-width: 1023px) 90vw, 55vw"
           className="counter-scroller__floating-img"
         />
       )}
@@ -103,14 +121,37 @@ function FloatingProductMedia({ product, active, allowVideo }) {
 
 export default function CounterScroller() {
   const saveData = typeof navigator !== 'undefined' && Boolean(navigator.connection?.saveData);
+  const reducedMotion = useReducedMotion();
   const [active, setActive] = useState(0);
+  const [phase, setPhase] = useState('hold');
+  const targetRef = useRef(0);
+  const transitionTimers = useRef([]);
+
+  useEffect(() => () => transitionTimers.current.forEach(window.clearTimeout), []);
+
+  function showSlide(index) {
+    if (index === active && phase === 'hold') return;
+    transitionTimers.current.forEach(window.clearTimeout);
+    targetRef.current = index;
+    if (reducedMotion) {
+      setActive(index);
+      setPhase('hold');
+      return;
+    }
+    setPhase('exit');
+    transitionTimers.current = [window.setTimeout(() => {
+      setActive(index);
+      setPhase('arrival');
+      transitionTimers.current = [window.setTimeout(() => setPhase('hold'), 650)];
+    }, 180)];
+  }
 
   function handleNext() {
-    setActive((prev) => (prev + 1) % SHOWCASE.length);
+    showSlide((targetRef.current + 1) % SHOWCASE.length);
   }
 
   function handlePrev() {
-    setActive((prev) => (prev - 1 + SHOWCASE.length) % SHOWCASE.length);
+    showSlide((targetRef.current - 1 + SHOWCASE.length) % SHOWCASE.length);
   }
 
   return (
@@ -143,10 +184,13 @@ export default function CounterScroller() {
                   type="button"
                   role="tab"
                   aria-label={`Go to ${item.name}`}
+                  title={item.name}
                   aria-selected={idx === active}
-                  onClick={() => setActive(idx)}
+                  onClick={() => showSlide(idx)}
                   className={`counter-scroller__dot${idx === active ? ' is-active' : ''}`}
-                />
+                >
+                  <span>{item.name}</span>
+                </button>
               ))}
             </div>
 
@@ -166,12 +210,12 @@ export default function CounterScroller() {
           <motion.div
             className="counter-scroller__track"
             animate={{ x: `-${active * 100}%` }}
-            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: reducedMotion ? 0 : 0.5, ease: [0.16, 1, 0.3, 1] }}
           >
             {SHOWCASE.map((product, index) => (
               <article
                 key={product.id}
-                className="counter-scroller__card"
+                className={`counter-scroller__card${index === active ? ` is-active is-${phase}` : ''}`}
                 aria-hidden={index !== active}
               >
                 <div className="counter-scroller__inner">
@@ -179,7 +223,7 @@ export default function CounterScroller() {
                   <FloatingProductMedia
                     product={product}
                     active={index === active}
-                    allowVideo={!saveData}
+                    allowVideo={!saveData && !reducedMotion}
                   />
 
                   {/* Refined Copy Panel */}
@@ -188,7 +232,7 @@ export default function CounterScroller() {
                     <h3>{product.title}</h3>
                     <p>{product.copy}</p>
 
-                    <Link to={product.href} className="btn btn-primary counter-scroller__cta">
+                    <Link to={product.href} tabIndex={index === active ? undefined : -1} className="btn btn-primary counter-scroller__cta">
                       <span>{product.cta}</span>
                       <ArrowUpRight size={15} aria-hidden="true" />
                     </Link>

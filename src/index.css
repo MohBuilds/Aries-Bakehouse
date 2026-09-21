@@ -3210,9 +3210,9 @@ input[readonly] {
 }
 
 .site-header--over-hero:not(.is-scrolled) {
-  background: var(--color-choc);
-  border-color: color-mix(in srgb, var(--color-cream) 14%, transparent);
-  color: var(--color-cream);
+  background: var(--color-panel);
+  border-color: color-mix(in srgb, var(--color-panel-contrast) 14%, transparent);
+  color: var(--color-panel-contrast);
 }
 
 .site-header--over-hero:not(.is-scrolled) .desktop-nav,
@@ -3221,7 +3221,7 @@ input[readonly] {
 .site-header--over-hero:not(.is-scrolled) .site-header__icon-link,
 .site-header--over-hero:not(.is-scrolled) .theme-toggle,
 .site-header--over-hero:not(.is-scrolled) .hamburger {
-  color: var(--color-cream);
+  color: var(--color-panel-contrast);
 }
 
 .site-header--over-hero:not(.is-scrolled) .desktop-nav__link:hover,
@@ -3241,7 +3241,7 @@ input[readonly] {
 
 .home-hero.home-hero--static {
   position: relative;
-  min-height: calc(100svh - 72px);
+  min-height: min(740px, calc(78svh - 72px));
   overflow: hidden;
   background: var(--color-panel);
   color: var(--color-panel-contrast);
@@ -3255,8 +3255,8 @@ input[readonly] {
 
 .home-hero__backdrop-img {
   object-fit: cover;
-  object-position: center 42%;
-  filter: contrast(1.05) brightness(0.95);
+  object-position: center 46%;
+  filter: contrast(1.03) brightness(0.98);
 }
 
 .home-hero__backdrop-scrim {
@@ -3265,10 +3265,10 @@ input[readonly] {
   z-index: 1;
   background: linear-gradient(
     100deg,
-    rgba(37, 19, 16, 0.96) 0%,
-    rgba(37, 19, 16, 0.82) 38%,
-    rgba(37, 19, 16, 0.42) 68%,
-    rgba(37, 19, 16, 0.15) 100%
+    rgba(37, 19, 16, 0.93) 0%,
+    rgba(37, 19, 16, 0.78) 38%,
+    rgba(37, 19, 16, 0.36) 68%,
+    rgba(37, 19, 16, 0.1) 100%
   );
 }
 
@@ -3277,9 +3277,9 @@ input[readonly] {
   z-index: 2;
   display: flex;
   align-items: center;
-  min-height: calc(100svh - 72px);
-  padding-top: clamp(42px, 7svh, 88px);
-  padding-bottom: clamp(64px, 8svh, 96px);
+  min-height: min(740px, calc(78svh - 72px));
+  padding-top: clamp(40px, 6svh, 72px);
+  padding-bottom: clamp(48px, 6svh, 72px);
 }
 
 .home-hero__static-copy {
@@ -3333,8 +3333,8 @@ input[readonly] {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: var(--color-cream);
-  color: var(--color-choc);
+  background: #F5EBD6;
+  color: #2B140F;
   padding: 13px 26px;
   border-radius: var(--radius-pill);
   font-weight: 800;
@@ -3346,7 +3346,7 @@ input[readonly] {
 
 .home-hero__primary-action:hover {
   background: var(--color-caramel);
-  color: var(--color-white);
+  color: var(--color-panel-contrast);
   transform: translateY(-2px);
 }
 
@@ -3354,7 +3354,7 @@ input[readonly] {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  color: var(--color-cream);
+  color: var(--color-panel-contrast);
   font-size: 14px;
   font-weight: 800;
   padding: 12px 22px;
@@ -3369,7 +3369,7 @@ input[readonly] {
 .home-hero__text-action:hover {
   background: rgba(255, 255, 255, 0.18);
   border-color: rgba(255, 255, 255, 0.35);
-  color: var(--color-white);
+  color: var(--color-panel-contrast);
 }
 
 .home-hero__scroll-cue {
@@ -3526,16 +3526,16 @@ input[readonly] {
 
 @media (max-width: 767px) {
   .site-header__inner { height: 64px; }
-  .home-hero.home-hero--static { min-height: calc(100svh - 64px); }
-  .home-hero__backdrop-img { object-position: center 38%; }
+  .home-hero.home-hero--static { min-height: min(620px, calc(76svh - 64px)); }
+  .home-hero__backdrop-img { object-position: center 40%; }
   .home-hero__backdrop-scrim {
-    background: linear-gradient(0deg, color-mix(in srgb, var(--color-choc) 92%, transparent) 0%, color-mix(in srgb, var(--color-choc) 66%, transparent) 42%, color-mix(in srgb, var(--color-choc) 30%, transparent) 100%);
+    background: linear-gradient(0deg, rgba(37, 19, 16, 0.92) 0%, rgba(37, 19, 16, 0.68) 48%, rgba(37, 19, 16, 0.26) 100%);
   }
   .home-hero__static-inner {
-    min-height: calc(100svh - 64px);
+    min-height: min(620px, calc(76svh - 64px));
     align-items: flex-end;
-    padding-top: 38px;
-    padding-bottom: 72px;
+    padding-top: 26px;
+    padding-bottom: 44px;
   }
   .home-hero__static-copy { max-width: none; }
   .home-hero__edition { margin-bottom: 18px; }
@@ -3562,7 +3562,7 @@ input[readonly] {
    The Assembly Theatre — In-Place Luxury Carousel
    ============================================================ */
 .counter-scroller-section {
-  padding: clamp(54px, 7vw, 90px) 0;
+  padding: clamp(48px, 6vw, 76px) 0 clamp(42px, 5vw, 62px);
   background: var(--color-panel);
   color: var(--color-panel-contrast);
   position: relative;
@@ -3603,9 +3603,11 @@ input[readonly] {
   display: flex;
   align-items: center;
   gap: 12px;
+  max-width: 100%;
 }
 
 .counter-scroller__glass-btn {
+  flex: 0 0 44px;
   width: 44px;
   height: 44px;
   border-radius: var(--radius-pill);
@@ -3632,29 +3634,57 @@ input[readonly] {
 .counter-scroller__dots {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 0 4px;
+  gap: 4px;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.counter-scroller__dots::-webkit-scrollbar {
+  display: none;
 }
 
 .counter-scroller__dot {
-  width: 8px;
-  height: 8px;
+  flex: 0 0 auto;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: transparent;
+  color: color-mix(in srgb, var(--color-panel-contrast) 78%, transparent);
+  border: 1px solid transparent;
+  padding: 0 9px;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 180ms ease, border-color 180ms ease;
+}
+
+.counter-scroller__dot::before {
+  content: '';
+  flex: 0 0 7px;
+  height: 7px;
   border-radius: var(--radius-pill);
   background: rgba(255, 255, 255, 0.25);
-  border: 0;
-  padding: 0;
-  cursor: pointer;
-  transition: all 280ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition: background 180ms ease;
 }
 
-.counter-scroller__dot:hover {
-  background: rgba(255, 255, 255, 0.5);
-}
-
+.counter-scroller__dot:hover,
 .counter-scroller__dot.is-active {
-  width: 28px;
+  color: var(--color-panel-contrast);
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.counter-scroller__dot.is-active::before {
   background: var(--color-caramel);
   box-shadow: 0 0 12px rgba(184, 134, 76, 0.5);
+}
+
+.counter-scroller__dot:focus-visible {
+  outline: 2px solid var(--color-caramel);
+  outline-offset: 2px;
 }
 
 /* In-Place Carousel Track */
@@ -3676,23 +3706,45 @@ input[readonly] {
   min-width: 100%;
 }
 
+.counter-scroller__card.is-exit .counter-scroller__stage,
+.counter-scroller__card.is-exit .counter-scroller__copy {
+  opacity: 0;
+  transform: translateY(-10px) scale(0.97);
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+
+.counter-scroller__card.is-arrival .counter-scroller__stage {
+  animation: assembly-arrive 650ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.counter-scroller__card.is-arrival .counter-scroller__copy {
+  animation: assembly-arrive 550ms 80ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes assembly-arrive {
+  from { opacity: 0; transform: translateY(20px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
 .counter-scroller__inner {
   display: grid;
-  grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
-  gap: clamp(30px, 6vw, 88px);
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 25%);
+  gap: clamp(28px, 4vw, 56px);
   align-items: center;
 }
 
 .counter-scroller__stage {
   position: relative;
   width: 100%;
+  aspect-ratio: 4 / 3;
+  max-height: 540px;
   display: flex;
   align-items: center;
   justify-content: center;
   isolation: isolate;
   background: transparent;
   overflow: visible;
-  padding: 16px 0;
+  padding: 0;
 }
 
 .counter-scroller__ambient-glow {
@@ -3712,10 +3764,8 @@ input[readonly] {
 .counter-scroller__floating-img {
   position: relative;
   z-index: 1;
-  width: auto;
-  max-width: 100%;
-  height: auto;
-  max-height: min(68svh, 640px);
+  width: 100%;
+  height: 100%;
   object-fit: contain;
   filter: drop-shadow(0 28px 48px rgba(0, 0, 0, 0.45));
   transition: transform 600ms cubic-bezier(0.16, 1, 0.3, 1), opacity 300ms ease;
@@ -3784,8 +3834,7 @@ input[readonly] {
 @media (max-width: 1023px) {
   .counter-scroller__heading { flex-direction: column; align-items: flex-start; gap: 16px; }
   .counter-scroller__inner { grid-template-columns: 1fr; gap: 24px; }
-  .counter-scroller__floating-video,
-  .counter-scroller__floating-img { max-height: min(55svh, 480px); }
+  .counter-scroller__stage { max-height: min(55svh, 480px); }
   .counter-scroller__copy { align-items: center; text-align: center; }
   .counter-scroller__cta { align-self: center; }
 }
@@ -3793,6 +3842,8 @@ input[readonly] {
 @media (prefers-reduced-motion: reduce) {
   .counter-scroller__stage img,
   .counter-scroller__stage video { transition: opacity 150ms ease-out; transform: none; }
+  .counter-scroller__card.is-arrival .counter-scroller__stage,
+  .counter-scroller__card.is-arrival .counter-scroller__copy { animation: none; }
 }
 
 /* ============================================================
@@ -10040,7 +10091,7 @@ html.dark .floating-support {
    4. HOMEPAGE MENU DISCOVERY (LUXURY CATALOGUE CAROUSEL)
    ========================================================================== */
 .catalogue-carousel-section {
-  padding-top: var(--space-8);
+  padding-top: clamp(40px, 5vw, 64px);
   padding-bottom: var(--space-8);
 }
 
@@ -13371,5 +13422,3 @@ html.dark .floating-support {
   color: var(--color-text-muted);
   margin: 0;
 }
-
-

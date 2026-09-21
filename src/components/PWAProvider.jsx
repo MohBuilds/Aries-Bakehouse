@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Download, X } from 'lucide-react';
 import Image from 'next/image';
 import { toast } from './ui/toast.jsx';
@@ -9,6 +9,7 @@ const DISMISSED_KEY = 'aries11_install_prompt_dismissed';
 
 export default function PWAProvider() {
   const [installPrompt, setInstallPrompt] = useState(null);
+  const pendingPrompt = useRef(null);
 
   useEffect(() => {
     if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
@@ -19,9 +20,17 @@ export default function PWAProvider() {
 
     const handleInstallPrompt = (event) => {
       event.preventDefault();
-      if (window.localStorage.getItem(DISMISSED_KEY) !== 'true') setInstallPrompt(event);
+      if (window.localStorage.getItem(DISMISSED_KEY) === 'true') return;
+      pendingPrompt.current = event;
+      if (window.scrollY > window.innerHeight * 0.75) setInstallPrompt(event);
+    };
+    const handleScroll = () => {
+      if (pendingPrompt.current && window.scrollY > window.innerHeight * 0.75) {
+        setInstallPrompt(pendingPrompt.current);
+      }
     };
     const handleInstalled = () => {
+      pendingPrompt.current = null;
       setInstallPrompt(null);
       window.localStorage.removeItem(DISMISSED_KEY);
       toast.success('Aries 11 installed', { description: 'The bakehouse is now available from your home screen.' });
@@ -30,11 +39,13 @@ export default function PWAProvider() {
     const handleOnline = () => toast.success('Back online', { description: 'Ordering and account updates are available again.' });
 
     window.addEventListener('beforeinstallprompt', handleInstallPrompt);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     window.addEventListener('appinstalled', handleInstalled);
     window.addEventListener('offline', handleOffline);
     window.addEventListener('online', handleOnline);
     return () => {
       window.removeEventListener('beforeinstallprompt', handleInstallPrompt);
+      window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('appinstalled', handleInstalled);
       window.removeEventListener('offline', handleOffline);
       window.removeEventListener('online', handleOnline);
@@ -46,10 +57,14 @@ export default function PWAProvider() {
   const install = async () => {
     await installPrompt.prompt();
     const choice = await installPrompt.userChoice;
-    if (choice.outcome === 'accepted') setInstallPrompt(null);
+    if (choice.outcome === 'accepted') {
+      pendingPrompt.current = null;
+      setInstallPrompt(null);
+    }
   };
 
   const dismiss = () => {
+    pendingPrompt.current = null;
     window.localStorage.setItem(DISMISSED_KEY, 'true');
     setInstallPrompt(null);
   };

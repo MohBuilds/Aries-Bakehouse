@@ -1,9 +1,10 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, ArrowUpRight } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 
 const CATEGORY_META = {
   'banana-bread': {
@@ -74,6 +75,7 @@ const DEFAULT_META = {
 
 export default function CounterRail({ categories = [] }) {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const reducedMotion = useReducedMotion();
 
   if (!categories || categories.length === 0) return null;
 
@@ -152,22 +154,22 @@ export default function CounterRail({ categories = [] }) {
 
       {/* Luxury Showcase Card */}
       <div className="catalogue-stage-card">
-        <AnimatePresence mode="wait">
           <motion.div
             key={currentCategory.id}
             className="catalogue-stage-grid"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+            initial={reducedMotion ? false : { opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: reducedMotion ? 0 : 0.28, ease: [0.16, 1, 0.3, 1] }}
           >
             {/* Clean Photography Frame */}
             <div className="catalogue-stage-media">
-              <img
+              <Image
                 src={meta.image}
                 alt={meta.alt}
-                loading="eager"
-                decoding="async"
+                fill
+                priority={currentIndex === 0}
+                loading={currentIndex === 0 ? undefined : 'eager'}
+                sizes="(max-width: 899px) 100vw, 55vw"
                 className="catalogue-stage-img"
               />
             </div>
@@ -193,7 +195,6 @@ export default function CounterRail({ categories = [] }) {
               </div>
             </div>
           </motion.div>
-        </AnimatePresence>
       </div>
     </section>
   );
