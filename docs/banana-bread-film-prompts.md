@@ -27,15 +27,50 @@ Reply "Locked".
 
 ## Step 2 — Images
 
-| # | Save as | How | Prompt |
-|---|---|---|---|
-| 1 | `BB-01.png` | New | `One large plain banana bread loaf following the rules. Golden domed top with a natural centre crack, light brown-butter sheen.` |
-| 2 | `BB-02-hero.png` | EDIT BB-01 | `Keep everything identical. Add a soft wisp of steam from the crack and a few crumbs floating in the rim light.` |
-| 3 | `BB-03-sliced.png` | EDIT BB-01 | `Keep everything identical. The loaf is cut into 7 even slices, still standing together with hairline gaps.` |
-| 4 | `BB-04-exploded.png` | EDIT BB-03 | `The 7 slices now float apart in the air with even gaps, each tilted toward the camera to show the moist crumb with banana flecks. A few crumbs in the air.` |
-| 5 | `BB-05-macro-crumb.png` | New | `Extreme close-up of the cut face of a slice: moist golden crumb, banana flecks, shallow focus. Fills the frame.` |
-| 6 | `BB-06-macro-crust.png` | New | `Extreme close-up of the top crust crack: caramelised edges, brown-butter shine. Fills the frame.` |
-| 7 | `BB-07-sizes.png` | New | `Three plain loaves side by side in true scale: mini, medium, large. Wide 3072 × 1536.` |
+Do these in the same chat as Step 1. For each one: do what it says, paste the prompt, download the result, rename it.
+
+**Image 1 — the main loaf**
+Just paste this (no upload needed). Save as `BB-01.png`.
+```
+One large plain banana bread loaf following the rules. Golden domed top with a natural centre crack, light brown-butter sheen.
+```
+Everything else is built from this picture, so regenerate until you love it.
+
+**Image 2 — steaming loaf**
+Upload `BB-01.png`, then paste. Save as `BB-02-hero.png`.
+```
+Edit this image. Keep everything identical. Add a soft wisp of steam from the crack and a few crumbs floating in the light.
+```
+
+**Image 3 — sliced loaf**
+Upload `BB-01.png`, then paste. Save as `BB-03-sliced.png`.
+```
+Edit this image. Keep everything identical. The loaf is cut into 7 even slices, still standing together with thin gaps.
+```
+
+**Image 4 — slices floating apart**
+Upload `BB-03-sliced.png`, then paste. Save as `BB-04-exploded.png`.
+```
+Edit this image. The 7 slices now float apart in the air with even gaps, each tilted toward the camera to show the moist crumb with banana flecks. A few crumbs in the air.
+```
+
+**Image 5 — crumb close-up**
+Just paste. Save as `BB-05-macro-crumb.png`.
+```
+Extreme close-up of the cut face of a banana bread slice: moist golden crumb, banana flecks, shallow focus. Fills the frame.
+```
+
+**Image 6 — crust close-up**
+Just paste. Save as `BB-06-macro-crust.png`.
+```
+Extreme close-up of the top crust crack of the loaf: caramelised edges, brown-butter shine. Fills the frame.
+```
+
+**Image 7 — three sizes**
+Just paste. Save as `BB-07-sizes.png`.
+```
+Three plain banana bread loaves side by side in true scale: mini, medium, large. Wide image.
+```
 
 ---
 
