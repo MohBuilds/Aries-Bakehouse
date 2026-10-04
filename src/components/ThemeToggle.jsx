@@ -14,6 +14,7 @@ export default function ThemeToggle() {
       size="icon"
       onClick={toggleTheme}
       aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'}
+      aria-pressed={dark}
       title={dark ? 'Light mode' : 'Dark mode'}
       className="theme-toggle"
     >

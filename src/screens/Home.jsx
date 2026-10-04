@@ -1,21 +1,16 @@
 'use client';
 
 import { useCategories } from '../hooks/useCatalog.js';
-import HeroCarousel from '../components/HeroCarousel.jsx';
-import CounterScroller from '../components/CounterScroller.jsx';
+import BrownieFilm from '../components/film/BrownieFilm.jsx';
 import CounterRail from '../components/CounterRail.jsx';
-import OrderingWorks from '../components/OrderingWorks.jsx';
 
-export default function Home({ categories: initialCategories } = {}) {
+export default function Home({ categories: initialCategories, featured = [] } = {}) {
   const { data: categories, loading: categoriesLoading } = useCategories(initialCategories);
 
   return (
     <div className="home-page">
-      {/* Act 1: Decisive Opening Hero */}
-      <HeroCarousel />
-
-      {/* Act 2: Signature Assembly Theatre (Frameless Luxury Stage) */}
-      <CounterScroller />
+      {/* Act 1–2: Scroll-scrubbed Brownie Box film (hero → 360° → CTA) */}
+      <BrownieFilm featured={featured} />
 
       {/* Act 3: The Integrated Counter Catalogue Stage */}
       {categoriesLoading ? (
@@ -28,8 +23,7 @@ export default function Home({ categories: initialCategories } = {}) {
         <CounterRail categories={categories} />
       )}
 
-      {/* Act 4: The 3-Step Ordering Process & Kitchen Reassurance */}
-      <OrderingWorks />
+
     </div>
   );
 }

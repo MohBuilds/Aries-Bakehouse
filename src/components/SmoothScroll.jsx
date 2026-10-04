@@ -7,6 +7,18 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
+let activeLenis = null;
+
+// Programmatic scrolls must go through Lenis while it's running, otherwise
+// its interpolated position fights the native jump.
+export function scrollToY(y, { immediate = false } = {}) {
+  if (activeLenis) {
+    activeLenis.scrollTo(y, immediate ? { immediate: true } : { duration: 1.4 });
+    return;
+  }
+  window.scrollTo({ top: y, behavior: immediate ? 'auto' : 'smooth' });
+}
+
 export default function SmoothScroll() {
   useEffect(() => {
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -24,6 +36,7 @@ export default function SmoothScroll() {
       anchors: true,
     });
 
+    activeLenis = lenis;
     const update = () => ScrollTrigger.update();
     const raf = (time) => lenis.raf(time * 1000);
 
@@ -36,6 +49,7 @@ export default function SmoothScroll() {
       lenis.off('scroll', update);
       gsap.ticker.remove(raf);
       lenis.destroy();
+      activeLenis = null;
     };
   }, []);
 

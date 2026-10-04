@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
-import { ArrowUpRight, MessageCircle, Clock, MapPin, ShieldCheck } from 'lucide-react';
+import { ArrowUpRight, MessageCircle, Clock, MapPin } from 'lucide-react';
+import OrderingWorks from './OrderingWorks.jsx';
 import BrandLogo from './BrandLogo.jsx';
 
 const FOOTER_LINKS = {
@@ -27,14 +28,13 @@ const FOOTER_LINKS = {
 
 const SUPPORT_URL = 'https://wa.me/2348121145785';
 
-export default function Footer() {
+export default function Footer({ showOrdering = false }) {
   return (
     <footer className="site-footer">
       {/* Top closing invitation */}
       <div className="site-footer__closing-hero">
         <div className="container site-footer__closing-inner">
           <div className="site-footer__closing-copy">
-            <span className="site-footer__closing-kicker">The Digital Bakehouse Theatre</span>
             <h2 className="site-footer__closing-title">
               Let’s bake something<br />
               <em>worth gathering for.</em>
@@ -50,18 +50,20 @@ export default function Footer() {
             </Link>
             <a href={SUPPORT_URL} target="_blank" rel="noreferrer" className="btn site-footer__cta-whatsapp">
               <MessageCircle size={17} aria-hidden="true" />
-              <span>WhatsApp Concierge</span>
+              <span>WhatsApp support</span>
             </a>
           </div>
         </div>
       </div>
+
+      {showOrdering && <OrderingWorks />}
 
       {/* Main navigation columns & details */}
       <div className="site-footer__main">
         <div className="container site-footer__main-grid">
           {/* Col 1: Brand & Preorder Promise */}
           <div className="site-footer__brand-col">
-            <BrandLogo tone="light" className="site-footer__logo" />
+            <BrandLogo className="site-footer__logo" />
             <p className="site-footer__mission">
               Handcrafted bakery in Abeokuta, Nigeria. We celebrate real ingredients, deep chocolate, and custom bakes tailored to your moment.
             </p>

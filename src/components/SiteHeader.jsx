@@ -23,19 +23,31 @@ export default function SiteHeader() {
   const mobileMenuCloseRef = useRef(null);
 
   useEffect(() => {
-    const updateHeader = () => setScrolled(window.scrollY > 24);
+    // On the homepage the header stays in its dark "over hero" state for the
+    // whole length of the film, then switches once the cream page begins.
+    const updateHeader = () => {
+      const film = document.getElementById('brownie-film');
+      const limit = film ? film.offsetTop + film.offsetHeight - 72 : 24;
+      setScrolled(window.scrollY > limit);
+    };
     updateHeader();
     window.addEventListener('scroll', updateHeader, { passive: true });
     return () => window.removeEventListener('scroll', updateHeader);
-  }, []);
+  }, [pathname]);
 
   useEffect(() => {
     let cancelled = false;
-    supabase.from('site_content').select('value').eq('key', 'announcement_bar').maybeSingle()
+    supabase
+      .from('site_content')
+      .select('value')
+      .eq('key', 'announcement_bar')
+      .maybeSingle()
       .then(({ data }) => {
         if (!cancelled && data?.value) setAnnouncement((current) => ({ ...current, ...data.value }));
       });
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   useEffect(() => {
@@ -96,18 +108,22 @@ export default function SiteHeader() {
             onClick={() => setShowAnnouncement(false)}
             aria-label="Dismiss announcement"
             className="announcement-bar__dismiss"
-          >&times;</button>
+          >
+            &times;
+          </button>
         </div>
       )}
 
       <header className={`site-header${pathname === '/' ? ' site-header--over-hero' : ''}${scrolled ? ' is-scrolled' : ''}`}>
         <div className="container site-header__inner">
           <Link to="/" aria-label="Aries 11 Bakehouse home" className="site-header__brand-link">
-            <BrandLogo tone={pathname === '/' && !scrolled ? 'light' : undefined} className="site-header__logo" />
+            <BrandLogo className="site-header__logo" />
           </Link>
 
           <nav className="desktop-nav" aria-label="Main navigation">
-            <NavLink to="/" end className={navLinkClass}>Home</NavLink>
+            <NavLink to="/" end className={navLinkClass}>
+              Home
+            </NavLink>
             <div
               className="desktop-nav__menu"
               onMouseEnter={() => setMenuDropdownOpen(true)}
@@ -117,31 +133,39 @@ export default function SiteHeader() {
                 if (!event.currentTarget.contains(event.relatedTarget)) setMenuDropdownOpen(false);
               }}
             >
-              <NavLink to="/menu" className={navLinkClass} aria-expanded={menuDropdownOpen} aria-haspopup="true" aria-controls="menu-categories">Menu</NavLink>
+              <NavLink
+                to="/menu"
+                className={navLinkClass}
+                aria-expanded={menuDropdownOpen}
+                aria-haspopup="true"
+                aria-controls="menu-categories"
+              >
+                Menu
+              </NavLink>
               {menuDropdownOpen && (
-                <div
-                  id="menu-categories"
-                  aria-label="Menu categories"
-                  className="desktop-nav__dropdown"
-                >
+                <div id="menu-categories" aria-label="Menu categories" className="desktop-nav__dropdown">
                   {(categories || []).map((c) => (
-                    <Link
-                      key={c.id} to={`/menu/${c.id}`} onClick={closeNavigation}
-                      className="desktop-nav__dropdown-link"
-                    >
+                    <Link key={c.id} to={`/menu/${c.id}`} onClick={closeNavigation} className="desktop-nav__dropdown-link">
                       {c.name}
                     </Link>
                   ))}
                 </div>
               )}
             </div>
-            <NavLink to="/about" className={navLinkClass}>About</NavLink>
-            <NavLink to="/contact" className={navLinkClass}>Contact</NavLink>
+            <NavLink to="/about" className={navLinkClass}>
+              About
+            </NavLink>
+            <NavLink to="/contact" className={navLinkClass}>
+              Contact
+            </NavLink>
           </nav>
 
           <div className="site-header__actions">
             <Link to="/search" aria-label="Search" className="site-header__icon-link hide-mobile">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"><circle cx="11" cy="11" r="7" /><path d="M21 21l-4.3-4.3" /></svg>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
+                <circle cx="11" cy="11" r="7" />
+                <path d="M21 21l-4.3-4.3" />
+              </svg>
             </Link>
             <ThemeToggle />
             <div
@@ -161,40 +185,59 @@ export default function SiteHeader() {
                   onClick={() => setAccountDropdownOpen((open) => !open)}
                   className="site-header__icon-link"
                 >
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"><circle cx="12" cy="8" r="4" /><path d="M4 20c0-4 4-6 8-6s8 2 8 6" /></svg>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
+                    <circle cx="12" cy="8" r="4" />
+                    <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
+                  </svg>
                 </button>
               ) : (
                 <Link to="/account" aria-label="Sign in" className="site-header__icon-link">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"><circle cx="12" cy="8" r="4" /><path d="M4 20c0-4 4-6 8-6s8 2 8 6" /></svg>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
+                    <circle cx="12" cy="8" r="4" />
+                    <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
+                  </svg>
                 </Link>
               )}
               {isRealAccount && accountDropdownOpen && (
-                <div
-                  aria-label="Account links"
-                  className="site-header__account-menu"
-                >
+                <div aria-label="Account links" className="site-header__account-menu">
                   <div className="site-header__account-summary">
                     <div>Signed in</div>
                     <strong>{customer?.email || customer?.phone || 'Your account'}</strong>
                   </div>
-                  <Link to="/account" onClick={closeNavigation} className="site-header__account-item">Account</Link>
-                  <Link to="/account/orders" onClick={closeNavigation} className="site-header__account-item">Order history</Link>
+                  <Link to="/account" onClick={closeNavigation} className="site-header__account-item">
+                    Account
+                  </Link>
+                  <Link to="/account/orders" onClick={closeNavigation} className="site-header__account-item">
+                    Order history
+                  </Link>
                   {customer?.role === 'admin' && (
-                    <Link to="/admin" onClick={closeNavigation} className="site-header__account-item site-header__account-item--admin">Admin dashboard</Link>
+                    <Link to="/admin" onClick={closeNavigation} className="site-header__account-item site-header__account-item--admin">
+                      Admin dashboard
+                    </Link>
                   )}
-                  <button type="button" onClick={() => signOut()} className="site-header__account-item">Sign out</button>
+                  <button type="button" onClick={() => signOut()} className="site-header__account-item">
+                    Sign out
+                  </button>
                 </div>
               )}
             </div>
-            <button
-              onClick={openDrawer}
-              aria-label={`Cart, ${count} item${count === 1 ? '' : 's'}`}
-              className="site-header__icon-link"
-            >
-              <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M6 6h15l-1.5 9h-12z" /><path d="M6 6L4 3H2" /><circle cx="9" cy="20" r="1.4" fill="currentColor" stroke="none" /><circle cx="17" cy="20" r="1.4" fill="currentColor" stroke="none" /></svg>
-              {count > 0 && (
-                <span className="site-header__cart-count">{count}</span>
-              )}
+            <button onClick={openDrawer} aria-label={`Cart, ${count} item${count === 1 ? '' : 's'}`} className="site-header__icon-link">
+              <svg
+                width="21"
+                height="21"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M6 6h15l-1.5 9h-12z" />
+                <path d="M6 6L4 3H2" />
+                <circle cx="9" cy="20" r="1.4" fill="currentColor" stroke="none" />
+                <circle cx="17" cy="20" r="1.4" fill="currentColor" stroke="none" />
+              </svg>
+              {count > 0 && <span className="site-header__cart-count">{count}</span>}
             </button>
             <button
               ref={mobileMenuButtonRef}
@@ -205,7 +248,9 @@ export default function SiteHeader() {
               aria-controls="mobile-menu"
               onClick={() => setMenuOpen(true)}
             >
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M4 6h16M4 12h16M4 18h16" /></svg>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+                <path d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
             </button>
           </div>
         </div>
@@ -223,16 +268,40 @@ export default function SiteHeader() {
         >
           <div className="mobile-menu__header">
             <BrandLogo tone="light" className="mobile-menu__logo" />
-            <button ref={mobileMenuCloseRef} type="button" onClick={() => setMenuOpen(false)} aria-label="Close menu" className="mobile-menu__close">&times;</button>
+            <button
+              ref={mobileMenuCloseRef}
+              type="button"
+              onClick={() => setMenuOpen(false)}
+              aria-label="Close menu"
+              className="mobile-menu__close"
+            >
+              &times;
+            </button>
           </div>
           <nav className="mobile-menu__nav" aria-label="Mobile navigation">
-            <NavLink to="/" end onClick={closeNavigation}>Home</NavLink>
-            <NavLink to="/menu" onClick={closeNavigation}>Menu</NavLink>
-            <NavLink to="/search" onClick={closeNavigation}>Search</NavLink>
-            <NavLink to="/about" onClick={closeNavigation}>About</NavLink>
-            <NavLink to="/contact" onClick={closeNavigation}>Contact</NavLink>
-            <NavLink to="/account" onClick={closeNavigation}>Account</NavLink>
-            {customer?.role === 'admin' && <Link to="/admin" onClick={() => setMenuOpen(false)}>Admin dashboard</Link>}
+            <NavLink to="/" end onClick={closeNavigation}>
+              Home
+            </NavLink>
+            <NavLink to="/menu" onClick={closeNavigation}>
+              Menu
+            </NavLink>
+            <NavLink to="/search" onClick={closeNavigation}>
+              Search
+            </NavLink>
+            <NavLink to="/about" onClick={closeNavigation}>
+              About
+            </NavLink>
+            <NavLink to="/contact" onClick={closeNavigation}>
+              Contact
+            </NavLink>
+            <NavLink to="/account" onClick={closeNavigation}>
+              Account
+            </NavLink>
+            {customer?.role === 'admin' && (
+              <Link to="/admin" onClick={() => setMenuOpen(false)}>
+                Admin dashboard
+              </Link>
+            )}
           </nav>
           <p className="mobile-menu__note">Made to order in Abeokuta. Please allow at least 24 hours.</p>
         </div>

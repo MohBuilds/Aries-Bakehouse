@@ -54,8 +54,9 @@ export const viewport = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={`${dmSans.variable} ${cormorantGaramond.variable}`}>
+        <script dangerouslySetInnerHTML={{ __html: "try{var t=localStorage.getItem('aries-theme');var d=t==='dark'||(t!=='light'&&matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.classList.toggle('dark',d);document.documentElement.style.colorScheme=d?'dark':'light'}catch(e){document.documentElement.classList.toggle('dark',matchMedia('(prefers-color-scheme: dark)').matches)}" }} />
         <Providers>{children}</Providers>
       </body>
     </html>
