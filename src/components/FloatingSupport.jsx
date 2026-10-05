@@ -8,15 +8,20 @@ export default function FloatingSupport() {
   const { pathname } = useLocation();
   const [overFooter, setOverFooter] = useState(false);
 
-  // The footer carries its own WhatsApp links, and the floating button would
-  // otherwise sit on top of its legal links. Hide it while the footer shows.
+  // The closing panel and footer carry their own WhatsApp links, and the
+  // floating button would otherwise sit on top of them. Hide it while they show.
   useEffect(() => {
-    const footer = document.querySelector('[data-site-footer]');
-    if (!footer || !('IntersectionObserver' in window)) return undefined;
-    const observer = new IntersectionObserver(([entry]) => setOverFooter(entry.isIntersecting), {
-      rootMargin: '0px 0px -12% 0px',
-    });
-    observer.observe(footer);
+    const targets = document.querySelectorAll('[data-closing], [data-site-footer]');
+    if (!targets.length || !('IntersectionObserver' in window)) return undefined;
+    const visible = new Set();
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => (entry.isIntersecting ? visible.add(entry.target) : visible.delete(entry.target)));
+        setOverFooter(visible.size > 0);
+      },
+      { rootMargin: '0px 0px -12% 0px' },
+    );
+    targets.forEach((target) => observer.observe(target));
     return () => observer.disconnect();
   }, [pathname]);
 

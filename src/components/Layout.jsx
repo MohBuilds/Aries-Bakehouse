@@ -28,7 +28,7 @@ export default function Layout({ children }) {
       <a href="#main-content" className="skip-link">Skip to content</a>
       <SiteHeader />
       <main id="main-content" tabIndex={-1} className="site-main">{children}</main>
-      <Footer showOrdering={pathname === '/'} />
+      <Footer />
       <FloatingSupport />
       <CartDrawer />
       {showMobileNav && <MobileBottomNav />}

@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ArrowUpRight, MessageCircle, Clock, MapPin } from 'lucide-react';
-import OrderingWorks from './OrderingWorks.jsx';
+import { MessageCircle } from 'lucide-react';
 import BrandLogo from './BrandLogo.jsx';
 
 const FOOTER_LINKS = {
@@ -28,68 +27,25 @@ const FOOTER_LINKS = {
 
 const SUPPORT_URL = 'https://wa.me/2348121145785';
 
-export default function Footer({ showOrdering = false }) {
+export default function Footer() {
   return (
     <footer className="site-footer" data-site-footer>
-      {showOrdering && (
-        <>
-          {/* Top closing invitation */}
-          <div className="site-footer__closing-hero">
-            <div className="container site-footer__closing-inner">
-              <div className="site-footer__closing-copy">
-                <h2 className="site-footer__closing-title">
-                  Let’s bake something
-                  <br />
-                  <em>worth gathering for.</em>
-                </h2>
-                <p className="site-footer__closing-desc">
-                  All bakes are made to order from scratch in Abeokuta. Reserve your bake with 24 hours notice.
-                </p>
-              </div>
-              <div className="site-footer__closing-actions">
-                <Link to="/menu" className="btn site-footer__cta-menu">
-                  <span>Explore the menu</span>
-                  <ArrowUpRight size={17} aria-hidden="true" />
-                </Link>
-                <a href={SUPPORT_URL} target="_blank" rel="noreferrer" className="btn site-footer__cta-whatsapp">
-                  <MessageCircle size={17} aria-hidden="true" />
-                  <span>WhatsApp support</span>
-                  <span className="visually-hidden"> (opens in a new tab)</span>
-                </a>
-              </div>
-            </div>
-          </div>
-
-          <OrderingWorks />
-        </>
-      )}
-
       {/* Main navigation columns & details */}
       <div className="site-footer__main">
         <div className="container site-footer__main-grid">
           {/* Col 1: Brand & Preorder Promise */}
           <div className="site-footer__brand-col">
             <BrandLogo className="site-footer__logo" loading="lazy" />
-            <p className="site-footer__mission">Made to order in Abeokuta.</p>
+            <p className="site-footer__mission">Made to order in Abeokuta, Ogun State.</p>
             <a href={SUPPORT_URL} target="_blank" rel="noreferrer" className="site-footer__support-link">
               <MessageCircle size={16} aria-hidden="true" /> +234 812 114 5785
             </a>
             <span className="site-footer__hours-tag">Mon–Sat · 9 AM–7 PM WAT</span>
-            <div className="site-footer__pill-info">
-              <div className="site-footer__pill-item">
-                <Clock size={15} aria-hidden="true" />
-                <span>24 hours advance notice required</span>
-              </div>
-              <div className="site-footer__pill-item">
-                <MapPin size={15} aria-hidden="true" />
-                <span>Abeokuta, Ogun State, Nigeria</span>
-              </div>
-            </div>
           </div>
 
           {/* Col 2: Menu Categories */}
-          <nav className="site-footer__col" aria-label="Menu categories">
-            <h3 className="site-footer__col-heading">Catalogue</h3>
+          <nav className="site-footer__col" aria-label="Menu">
+            <h2 className="site-footer__col-heading">Menu</h2>
             <ul className="site-footer__link-list">
               {FOOTER_LINKS.menu.map((item) => (
                 <li key={item.to}>
@@ -100,8 +56,8 @@ export default function Footer({ showOrdering = false }) {
           </nav>
 
           {/* Col 3: Exploration & Info */}
-          <nav className="site-footer__col" aria-label="Quick links">
-            <h3 className="site-footer__col-heading">Information</h3>
+          <nav className="site-footer__col" aria-label="Help">
+            <h2 className="site-footer__col-heading">Help</h2>
             <ul className="site-footer__link-list">
               {FOOTER_LINKS.explore.map((item) => (
                 <li key={item.to}>
