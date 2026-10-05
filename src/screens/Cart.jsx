@@ -8,7 +8,8 @@ import EmptyState from '../components/EmptyState.jsx';
 import { trackEvent } from '../lib/analytics.js';
 import { toast } from '../components/ui/toast.jsx';
 
-const WHATSAPP_SUPPORT_URL = 'https://wa.me/2348121145785?text=Hello%20Aries%2011%20Bakehouse%2C%20I%20have%20a%20question%20about%20my%20cart.';
+const WHATSAPP_SUPPORT_URL =
+  'https://wa.me/2348121145785?text=Hello%20Aries%2011%20Bakehouse%2C%20I%20have%20a%20question%20about%20my%20cart.';
 
 export default function Cart() {
   const { items, subtotal, hasUnpricedItems, updateQty, removeFromCart, addToCart } = useCart();
@@ -57,25 +58,25 @@ export default function Cart() {
 
   if (items.length === 0) {
     return (
-      <main className="container cart-page cart-page--empty">
+      <div className="container cart-page cart-page--empty">
         <EmptyState
           icon={ShoppingBag}
+          headingLevel={1}
           title="Your cart is empty"
           desc="Choose a loaf, brownie box or platter from the counter to build your order."
           actionLabel="Explore the menu"
           actionTo="/menu"
         />
-      </main>
+      </div>
     );
   }
 
   return (
-    <main className="container cart-page">
+    <div className="container cart-page">
       {/* Header */}
       <header className="cart-page__header">
         <div>
-          <span className="page-kicker">Your Selection</span>
-          <h1 className="cart-page__title">Review Your Bakes</h1>
+          <h1 className="cart-page__title">Your cart</h1>
           <p className="cart-page__subtitle">
             {items.length} bake{items.length === 1 ? '' : 's'} configured and ready for the kitchen.
           </p>
@@ -130,7 +131,9 @@ export default function Cart() {
                       >
                         <Minus size={13} aria-hidden="true" />
                       </button>
-                      <span aria-live="polite" className="cart-quantity-val">{item.qty}</span>
+                      <span aria-live="polite" className="cart-quantity-val">
+                        {item.qty}
+                      </span>
                       <button
                         type="button"
                         aria-label={`Increase ${item.name} quantity`}
@@ -173,7 +176,9 @@ export default function Cart() {
           {/* Totals breakdown */}
           <div className="cart-summary__rows">
             <div className="cart-summary__row">
-              <span>Subtotal ({items.length} {items.length === 1 ? 'bake' : 'bakes'})</span>
+              <span>
+                Subtotal ({items.length} {items.length === 1 ? 'bake' : 'bakes'})
+              </span>
               <strong>{fmtNaira(subtotal)}</strong>
             </div>
 
@@ -185,12 +190,12 @@ export default function Cart() {
             )}
 
             <div className="cart-summary__row">
-              <span>Fulfilment</span>
-              <span className="cart-summary__faint">Calculated at checkout</span>
+              <span>Delivery</span>
+              <span className="cart-summary__faint">Fee confirmed separately</span>
             </div>
 
             <div className="cart-summary__total-row">
-              <span>Estimated Total</span>
+              <span>Subtotal</span>
               <strong>{fmtNaira(total)}</strong>
             </div>
           </div>
@@ -204,11 +209,7 @@ export default function Cart() {
           {/* Secondary Discount Accordion */}
           <div className="cart-discount-secondary">
             {!showDiscountInput && !discount ? (
-              <button
-                type="button"
-                className="cart-discount-toggle"
-                onClick={() => setShowDiscountInput(true)}
-              >
+              <button type="button" className="cart-discount-toggle" onClick={() => setShowDiscountInput(true)}>
                 <Tag size={14} aria-hidden="true" />
                 <span>Add discount or gift code</span>
               </button>
@@ -223,11 +224,7 @@ export default function Cart() {
                     aria-label="Discount code"
                     className="cart-discount-input"
                   />
-                  <button
-                    type="submit"
-                    disabled={discountStatus === 'working'}
-                    className="cart-discount-btn"
-                  >
+                  <button type="submit" disabled={discountStatus === 'working'} className="cart-discount-btn">
                     {discountStatus === 'working' ? '...' : 'Apply'}
                   </button>
                 </div>
@@ -241,31 +238,22 @@ export default function Cart() {
           </div>
 
           {/* Dominant Primary Checkout Button */}
-          <Link
-            to="/checkout"
-            state={discount ? { discount } : undefined}
-            className="btn btn-primary btn-lg cart-checkout-btn"
-          >
+          <Link to="/checkout" state={discount ? { discount } : undefined} className="btn btn-primary btn-lg cart-checkout-btn">
             <LockKeyhole size={16} aria-hidden="true" />
-            <span>Proceed to Checkout</span>
+            <span>Continue to checkout</span>
           </Link>
 
           {/* Branded WhatsApp Intentional Alternative */}
           <div className="cart-whatsapp-option">
-            <span className="cart-whatsapp-option__divider">or prefer human assistance?</span>
-            <a
-              href={WHATSAPP_SUPPORT_URL}
-              target="_blank"
-              rel="noreferrer"
-              className="cart-whatsapp-option__link"
-            >
+            <span className="cart-whatsapp-option__divider">Need a hand?</span>
+            <a href={WHATSAPP_SUPPORT_URL} target="_blank" rel="noreferrer" className="cart-whatsapp-option__link">
               <MessageCircle size={16} aria-hidden="true" />
-              <span>Order or clarify details on WhatsApp</span>
+              <span>Ask on WhatsApp</span>
               <ArrowUpRight size={14} aria-hidden="true" />
             </a>
           </div>
         </aside>
       </div>
-    </main>
+    </div>
   );
 }

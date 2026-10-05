@@ -1,9 +1,10 @@
 'use client';
 
-import { useEffect, useMemo, useState, useRef } from 'react';
+import { useMemo, useState } from 'react';
 import { Search as SearchIcon, X, SlidersHorizontal } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 import { useCategories, useProducts } from '../hooks/useCatalog.js';
+import { matchesProduct, sortProducts } from '../lib/catalogBrowse.js';
 import ProductCard from '../components/ProductCard.jsx';
 import {
   Breadcrumb,
@@ -16,79 +17,58 @@ import {
 
 const CATEGORY_EDITORIAL = {
   all: {
-    title: 'The complete bakehouse counter.',
-    subtitle: 'From signature banana bread loaves to fudgy brownie boxes and party sharing platters. Made from scratch in Abeokuta.',
+    title: 'Our menu',
+    subtitle: 'Choose your bake. Make it yours.',
   },
   'banana-bread': {
-    title: 'Signature Banana Bread.',
-    subtitle: 'Ultra-moist loaves crafted in two sizes, finished with your choice of 7 signature toppings.',
+    title: 'Banana bread',
+    subtitle: 'Choose your loaf size and favourite topping.',
   },
-  'brownies': {
-    title: 'Luxury Brownie Boxes.',
-    subtitle: 'Deep cocoa, fudgy centers, and crisp toppings in gift boxes of 4, 6, 9, or 16 squares.',
+  brownies: {
+    title: 'Brownie boxes',
+    subtitle: 'Fudgy brownies in boxes of 4, 6, 9 or 16.',
   },
   'brownies-cookies': {
-    title: 'Luxury Brownie Boxes.',
-    subtitle: 'Deep cocoa, fudgy centers, and crisp toppings in gift boxes of 4, 6, 9, or 16 squares.',
+    title: 'Brownie boxes',
+    subtitle: 'Fudgy brownies in boxes of 4, 6, 9 or 16.',
   },
   'cake-treats': {
-    title: 'Cake Treats & Parfaits.',
-    subtitle: 'Decadent parfaits and ice-cold cake twists layered with rich creams and sponge cakes.',
+    title: 'Cake treats & parfaits',
+    subtitle: 'Layered parfaits and chilled cake treats.',
   },
-  'pastries': {
-    title: 'Golden Pastry Trays.',
-    subtitle: 'Suya meat pies, fish pies, and buttery sausage rolls gathered hot for your gathering.',
+  pastries: {
+    title: 'Pastry trays',
+    subtitle: 'Meat pies, fish pies and sausage rolls for sharing.',
   },
   'small-chops': {
-    title: 'Small Chops Platters.',
-    subtitle: 'Crisp samosas, golden spring rolls, and hot puff-puff platters arranged fresh for sharing.',
+    title: 'Small chops',
+    subtitle: 'Samosas, spring rolls and puff-puff, made for sharing.',
   },
 };
 
 export default function Menu({ categories: initialCategories, products: initialProducts } = {}) {
   const { category: categoryFromRoute } = useParams();
-  const [category, setCategory] = useState(categoryFromRoute || 'all');
+  const category = categoryFromRoute === 'brownies' ? 'brownies-cookies' : categoryFromRoute || 'all';
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState('featured');
-  const navRailRef = useRef(null);
 
   const { data: categories, loading: categoriesLoading } = useCategories(initialCategories);
-  const { data: products, loading: productsLoading } = useProducts(initialProducts);
-
-  useEffect(() => {
-    // Keep the selected tab aligned when navigating directly between category routes.
-    setCategory(categoryFromRoute || 'all');
-  }, [categoryFromRoute]);
+  const { data: products, loading: productsLoading, error: productsError, retry: retryProducts } = useProducts(initialProducts);
 
   const filtered = useMemo(() => {
     let list = products || [];
     if (category !== 'all') list = list.filter((product) => product.category === category);
-    if (search.trim()) {
-      const query = search.trim().toLowerCase();
-      list = list.filter((product) => (
-        product.name.toLowerCase().includes(query)
-        || product.desc?.toLowerCase().includes(query)
-      ));
-    }
-    if (sort === 'price-asc') list = [...list].sort((a, b) => (a.startingPrice ?? Infinity) - (b.startingPrice ?? Infinity));
-    if (sort === 'price-desc') list = [...list].sort((a, b) => (b.startingPrice ?? -Infinity) - (a.startingPrice ?? -Infinity));
-    if (sort === 'newest') list = [...list].reverse();
-    return list;
+    if (search.trim()) list = list.filter((product) => matchesProduct(product, search));
+    return sortProducts(list, sort);
   }, [category, products, search, sort]);
 
   const activeCategoryObj = categories?.find((item) => item.id === category);
-  const activeCategoryName = category === 'all'
-    ? 'All treats'
-    : activeCategoryObj?.name || formatCategoryName(category);
+  const activeCategoryName = category === 'all' ? 'All bakes' : activeCategoryObj?.name || formatCategoryName(category);
 
   const editorialCopy = CATEGORY_EDITORIAL[category] || {
     title: `${activeCategoryName}.`,
     subtitle: 'Made fresh to order with at least 24 hours notice in our Abeokuta kitchen.',
   };
-
-  function selectCategory(id) {
-    setCategory(id);
-  }
 
   return (
     <div className="menu-page">
@@ -96,8 +76,9 @@ export default function Menu({ categories: initialCategories, products: initialP
       <section className="menu-hero-section" aria-labelledby="menu-title">
         <div className="container">
           <MenuBreadcrumb category={category} categoryName={activeCategoryName} />
-          <span className="page-kicker">Made to order in Abeokuta</span>
-          <h1 id="menu-title" className="menu-hero-title">{editorialCopy.title}</h1>
+          <h1 id="menu-title" className="menu-hero-title">
+            {editorialCopy.title}
+          </h1>
           <p className="menu-hero-subtitle">{editorialCopy.subtitle}</p>
         </div>
       </section>
@@ -105,23 +86,19 @@ export default function Menu({ categories: initialCategories, products: initialP
       {/* 2. Sticky Category Navigation Rail */}
       <div className="menu-sticky-nav-wrap">
         <div className="container menu-sticky-nav-inner">
-          <nav
-            ref={navRailRef}
-            className="menu-category-rail"
-            aria-label="Filter by product category"
-          >
-            {[{ id: 'all', name: 'All Bakes' }, ...(categoriesLoading ? [] : categories || [])].map((item) => {
+          <nav className="menu-category-rail" aria-label="Filter by product category">
+            {[{ id: 'all', name: 'All bakes' }, ...(categoriesLoading ? [] : categories || [])].map((item) => {
               const isActive = category === item.id;
               return (
-                <button
+                <Link
                   key={item.id}
-                  type="button"
-                  aria-pressed={isActive}
-                  onClick={() => selectCategory(item.id)}
+                  to={item.id === 'all' ? '/menu' : `/menu/${item.id}`}
+                  scroll={false}
+                  aria-current={isActive ? 'page' : undefined}
                   className={`menu-category-pill${isActive ? ' is-active' : ''}`}
                 >
                   <span>{item.name}</span>
-                </button>
+                </Link>
               );
             })}
           </nav>
@@ -139,12 +116,7 @@ export default function Menu({ categories: initialCategories, products: initialP
                 className="menu-search-input"
               />
               {search && (
-                <button
-                  type="button"
-                  onClick={() => setSearch('')}
-                  aria-label="Clear search"
-                  className="menu-search-clear"
-                >
+                <button type="button" onClick={() => setSearch('')} aria-label="Clear search" className="menu-search-clear">
                   <X size={14} />
                 </button>
               )}
@@ -152,16 +124,10 @@ export default function Menu({ categories: initialCategories, products: initialP
 
             <div className="menu-sort-box">
               <SlidersHorizontal size={14} aria-hidden="true" />
-              <select
-                value={sort}
-                onChange={(e) => setSort(e.target.value)}
-                aria-label="Sort products"
-                className="menu-sort-select"
-              >
+              <select value={sort} onChange={(e) => setSort(e.target.value)} aria-label="Sort products" className="menu-sort-select">
                 <option value="featured">Featured</option>
-                <option value="price-asc">Price: Low to High</option>
-                <option value="price-desc">Price: High to Low</option>
-                <option value="newest">Newest First</option>
+                <option value="price-asc">Price: low to high</option>
+                <option value="price-desc">Price: high to low</option>
               </select>
             </div>
           </div>
@@ -171,11 +137,16 @@ export default function Menu({ categories: initialCategories, products: initialP
       {/* 3. Editorial Catalogue Grid */}
       <section className="container menu-catalogue-section" aria-label={`${activeCategoryName} products`}>
         <div className="menu-status-bar">
-          <span className="menu-status-count">
+          <span className="menu-status-count" role="status">
             <strong>{activeCategoryName}</strong>
-            {!productsLoading && <> · {filtered.length} {filtered.length === 1 ? 'bake' : 'bakes'}</>}
+            {!productsLoading && (
+              <>
+                {' '}
+                · {filtered.length} {filtered.length === 1 ? 'bake' : 'bakes'}
+              </>
+            )}
           </span>
-          <span className="menu-status-promise">All bakes require 24 hours notice</span>
+          <span className="menu-status-promise">24-hour notice</span>
         </div>
 
         {productsLoading ? (
@@ -183,6 +154,14 @@ export default function Menu({ categories: initialCategories, products: initialP
             {Array.from({ length: 6 }).map((_, index) => (
               <div key={index} className="skeleton editorial-card__skeleton" />
             ))}
+          </div>
+        ) : productsError ? (
+          <div className="menu-empty-state" role="alert">
+            <h2>We couldn’t load the menu</h2>
+            <p>Check your connection and try again.</p>
+            <button type="button" className="btn btn-primary" onClick={retryProducts}>
+              Try again
+            </button>
           </div>
         ) : filtered.length > 0 ? (
           <div className="editorial-product-grid">
@@ -193,14 +172,15 @@ export default function Menu({ categories: initialCategories, products: initialP
         ) : (
           <div className="menu-empty-state">
             <h3>No bakes found</h3>
-            <p>We couldn’t find any treats matching your search. Try another query or reset the filters.</p>
-            <button
-              type="button"
-              onClick={() => { setCategory('all'); setSearch(''); }}
-              className="btn btn-primary"
-            >
-              Show all bakes
+            <p>Try a different search or browse all bakes.</p>
+            <button type="button" onClick={() => setSearch('')} className="btn btn-primary">
+              Clear search
             </button>
+            {category !== 'all' && (
+              <Link to="/menu" className="text-link">
+                Browse all bakes
+              </Link>
+            )}
           </div>
         )}
       </section>
@@ -218,14 +198,14 @@ function MenuBreadcrumb({ category, categoryName }) {
         </BreadcrumbItem>
         <BreadcrumbSeparator />
         <BreadcrumbItem>
-          {showingCategory
-            ? <BreadcrumbLink render={<Link to="/menu" />}>Menu</BreadcrumbLink>
-            : <BreadcrumbPage>Menu</BreadcrumbPage>}
+          {showingCategory ? <BreadcrumbLink render={<Link to="/menu" />}>Menu</BreadcrumbLink> : <BreadcrumbPage>Menu</BreadcrumbPage>}
         </BreadcrumbItem>
         {showingCategory && (
           <>
             <BreadcrumbSeparator />
-            <BreadcrumbItem><BreadcrumbPage>{categoryName}</BreadcrumbPage></BreadcrumbItem>
+            <BreadcrumbItem>
+              <BreadcrumbPage>{categoryName}</BreadcrumbPage>
+            </BreadcrumbItem>
           </>
         )}
       </BreadcrumbList>
@@ -234,7 +214,5 @@ function MenuBreadcrumb({ category, categoryName }) {
 }
 
 function formatCategoryName(value) {
-  return value
-    .replace(/-/g, ' ')
-    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+  return value.replace(/-/g, ' ').replace(/\b\w/g, (letter) => letter.toUpperCase());
 }

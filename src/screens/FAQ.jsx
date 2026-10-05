@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ChevronDown, MessageCircle, HelpCircle } from 'lucide-react';
+import { ChevronDown, MessageCircle } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '../components/ui/collapsible.jsx';
 
 const FAQS = [
@@ -8,11 +8,11 @@ const FAQS = [
     items: [
       {
         q: 'How much notice do you need for an order?',
-        a: 'Every order requires at least 24 hours advance notice. We bake entirely to order from scratch rather than holding inventory on a shelf. The checkout calendar will only allow you to pick dates starting tomorrow onwards.',
+        a: 'Please allow at least 24 hours before pickup or delivery. Available dates are shown at checkout.',
       },
       {
         q: 'Can I order custom platters or large corporate boxes?',
-        a: 'Yes! For large party platters, corporate gifting, or bespoke catering, you can build your order on our menu or message our WhatsApp concierge directly to coordinate specific quantities and arrival times.',
+        a: 'Yes. Build your order on the menu, or message us on WhatsApp to arrange quantities and timing.',
       },
     ],
   },
@@ -21,11 +21,11 @@ const FAQS = [
     items: [
       {
         q: 'How do I pay for my order?',
-        a: 'Payment is completed online through Paystack at checkout via debit/credit card, bank transfer, or USSD. If an item in your cart is custom/unpriced (Price TBC), our team will confirm the final amount with you before taking payment.',
+        a: 'Pay through Paystack at checkout. Items marked Price TBC need team price confirmation before payment. WhatsApp assistance is available.',
       },
       {
         q: 'Are there hidden fees?',
-        a: 'No hidden fees. Product prices are clearly displayed on each item card. For delivery orders, the local delivery dispatch fee is calculated and confirmed based on your exact Abeokuta drop-off address.',
+        a: 'Product prices are shown on the menu. Delivery is charged separately; our team confirms the fee for your address.',
       },
     ],
   },
@@ -34,7 +34,7 @@ const FAQS = [
     items: [
       {
         q: 'Do you deliver across Abeokuta?',
-        a: 'Yes, we deliver across Abeokuta including Ibara, Oke-Mosan, Kuto, Camp, Adigbe, and surrounding areas. We also offer free pickup from our Abeokuta counter.',
+        a: 'We deliver locally in Abeokuta, with availability and fees confirmed for your address. Free pickup is also available.',
       },
       {
         q: 'How should I store my bakes?',
@@ -58,11 +58,8 @@ export default function FAQ() {
   return (
     <div className="container content-page">
       <header className="content-page__header">
-        <span className="page-kicker">Help & Guidance</span>
-        <h1 className="content-page__title">Frequently Asked Questions</h1>
-        <p className="content-page__subtitle">
-          Everything you need to know about our made-to-order bakes, timing, payments, and delivery.
-        </p>
+        <h1 className="content-page__title">Common questions</h1>
+        <p className="content-page__subtitle">Ordering, payment and caring for your bakes.</p>
       </header>
 
       <div className="faq-categories-list">
@@ -74,12 +71,7 @@ export default function FAQ() {
                 const id = `${cat.category}-${idx}`;
                 const isOpen = Boolean(openMap[id]);
                 return (
-                  <Collapsible
-                    key={item.q}
-                    open={isOpen}
-                    onOpenChange={() => toggle(id)}
-                    className={`faq-item${isOpen ? ' is-open' : ''}`}
-                  >
+                  <Collapsible key={item.q} open={isOpen} onOpenChange={() => toggle(id)} className={`faq-item${isOpen ? ' is-open' : ''}`}>
                     <CollapsibleTrigger className="faq-item__trigger">
                       <span>{item.q}</span>
                       <ChevronDown size={18} aria-hidden="true" className="faq-item__icon" />
@@ -98,7 +90,7 @@ export default function FAQ() {
       <div className="content-page__footer-action">
         <div>
           <h3>Didn’t find your answer?</h3>
-          <p>Our kitchen team is available Monday to Saturday to answer any questions.</p>
+          <p>Ask our kitchen on WhatsApp.</p>
         </div>
         <a
           href="https://wa.me/2348121145785?text=Hello%20Aries%2011%20Bakehouse%2C%20I%20have%20a%20question."

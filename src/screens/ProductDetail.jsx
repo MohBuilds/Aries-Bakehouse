@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
-import { Clock, ShieldCheck, ShoppingBag, Sparkles, Sliders, ArrowRight, MessageCircle } from 'lucide-react';
+import { Link, useParams } from 'react-router-dom';
+import { Clock, ShieldCheck, ShoppingBag, Sparkles, ArrowRight, MessageCircle } from 'lucide-react';
 import { fmtNaira } from '../lib/format.js';
 import { useCart } from '../context/CartContext.jsx';
 import { useProduct, useProductReviews, useRelatedProducts } from '../hooks/useCatalog.js';
@@ -8,6 +8,7 @@ import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import PillSelector from '../components/PillSelector.jsx';
 import SwatchPicker from '../components/SwatchPicker.jsx';
 import ProductCard from '../components/ProductCard.jsx';
+import EmptyState from '../components/EmptyState.jsx';
 import { productImageFit, productImagePadding } from '../lib/media.js';
 import { trackEvent } from '../lib/analytics.js';
 import {
@@ -21,7 +22,7 @@ import {
 
 export default function ProductDetail() {
   const { slug } = useParams();
-  const { product, rules, loading, error } = useProduct(slug);
+  const { product, rules, loading, error, retry } = useProduct(slug);
 
   if (loading) {
     return (
@@ -37,7 +38,25 @@ export default function ProductDetail() {
       </div>
     );
   }
-  if (error || !product) return <Navigate to="/menu" replace />;
+  if (error || !product) {
+    return (
+      <div className="container" role={error ? 'alert' : undefined}>
+        <EmptyState
+          headingLevel={1}
+          title={error ? 'We couldn’t load this bake' : 'Bake not found'}
+          desc={error ? 'Check your connection and try again.' : 'This bake is no longer on the menu.'}
+          actionLabel="Browse the menu"
+          actionTo="/menu"
+        >
+          {error && (
+            <button type="button" className="btn btn-secondary" onClick={retry}>
+              Try again
+            </button>
+          )}
+        </EmptyState>
+      </div>
+    );
+  }
 
   return <ProductDetailView slug={slug} product={product} rules={rules} />;
 }
@@ -56,15 +75,21 @@ function ProductDetailView({ slug, product, rules }) {
 
   useEffect(() => {
     trackEvent('product_viewed', { productId: product.id, slug, name: product.name });
-  }, [slug]);
+  }, [product.id, product.name, slug]);
 
   switch (product.configurator) {
-    case 'banana-bread': return <ConfiguredProduct key={slug} product={product} rules={rules} makeConfig={makeBananaBreadConfig} />;
-    case 'small-chops': return <ConfiguredProduct key={slug} product={product} rules={rules} makeConfig={makeSmallChopsConfig} />;
-    case 'brownies': return <ConfiguredProduct key={slug} product={product} rules={rules} makeConfig={makeBrowniesConfig} />;
-    case 'pastries': return <ConfiguredProduct key={slug} product={product} rules={rules} makeConfig={makePastriesConfig} />;
-    case 'cake': return <ConfiguredProduct key={slug} product={product} rules={rules} makeConfig={makeCakeConfig} />;
-    default: return <SimpleProduct key={slug} product={product} />;
+    case 'banana-bread':
+      return <ConfiguredProduct key={slug} product={product} rules={rules} makeConfig={makeBananaBreadConfig} />;
+    case 'small-chops':
+      return <ConfiguredProduct key={slug} product={product} rules={rules} makeConfig={makeSmallChopsConfig} />;
+    case 'brownies':
+      return <ConfiguredProduct key={slug} product={product} rules={rules} makeConfig={makeBrowniesConfig} />;
+    case 'pastries':
+      return <ConfiguredProduct key={slug} product={product} rules={rules} makeConfig={makePastriesConfig} />;
+    case 'cake':
+      return <ConfiguredProduct key={slug} product={product} rules={rules} makeConfig={makeCakeConfig} />;
+    default:
+      return <SimpleProduct key={slug} product={product} />;
   }
 }
 
@@ -75,8 +100,8 @@ function PreorderCommitmentCard() {
         <Clock size={18} aria-hidden="true" />
       </div>
       <div className="product-preorder-promise__text">
-        <strong>24-Hour Kitchen Preparation</strong>
-        <p>This bake is made fresh from scratch after your order is confirmed. Please allow at least 24 hours before pickup or delivery in Abeokuta.</p>
+        <strong>Made to order · 24-hour notice</strong>
+        <p>Choose pickup or delivery at checkout, at least 24 hours ahead.</p>
       </div>
     </div>
   );
@@ -84,12 +109,15 @@ function PreorderCommitmentCard() {
 
 function ProductInfoBlock({ product }) {
   return (
-    <div className="product-info-accordion">
-      <h3 className="product-info-accordion__title">Kitchen Details</h3>
-      <InfoRow label="Ingredients" value={confirmedInfo(product?.ingredientsNote, 'Premium flour, pure butter, farm-fresh eggs, and rich cocoa.')} />
-      <InfoRow label="Allergens" value={confirmedInfo(product?.allergenNote, 'Contains dairy and gluten. May contain tree nuts and peanuts.')} />
-      <InfoRow label="Storage" value={confirmedInfo(product?.storageNote, 'Best enjoyed within 3 days. Keep refrigerated or in a cool, airtight container.')} />
-    </div>
+    <details className="product-info-accordion">
+      <summary className="product-info-accordion__title">Ingredients & care</summary>
+      <InfoRow label="Ingredients" value={confirmedInfo(product?.ingredientsNote, 'Ask our kitchen for the ingredients for this bake.')} />
+      <InfoRow
+        label="Allergens"
+        value={confirmedInfo(product?.allergenNote, 'Please check with our kitchen before ordering if you have an allergy.')}
+      />
+      <InfoRow label="Storage" value={confirmedInfo(product?.storageNote, 'Ask our kitchen for storage instructions for this bake.')} />
+    </details>
   );
 }
 
@@ -108,22 +136,28 @@ function InfoRow({ label, value }) {
 
 function productCategoryLabel(category) {
   if (category === 'brownies-cookies') return 'Brownies';
-  return category
-    .replace(/-/g, ' ')
-    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+  return category.replace(/-/g, ' ').replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
 function ProductBreadcrumb({ product }) {
   return (
     <Breadcrumb className="product-breadcrumb">
       <BreadcrumbList>
-        <BreadcrumbItem><BreadcrumbLink render={<Link to="/" />}>Home</BreadcrumbLink></BreadcrumbItem>
+        <BreadcrumbItem>
+          <BreadcrumbLink render={<Link to="/" />}>Home</BreadcrumbLink>
+        </BreadcrumbItem>
         <BreadcrumbSeparator />
-        <BreadcrumbItem><BreadcrumbLink render={<Link to="/menu" />}>Menu</BreadcrumbLink></BreadcrumbItem>
+        <BreadcrumbItem>
+          <BreadcrumbLink render={<Link to="/menu" />}>Menu</BreadcrumbLink>
+        </BreadcrumbItem>
         <BreadcrumbSeparator />
-        <BreadcrumbItem><BreadcrumbLink render={<Link to={`/menu/${product.category}`} />}>{productCategoryLabel(product.category)}</BreadcrumbLink></BreadcrumbItem>
+        <BreadcrumbItem>
+          <BreadcrumbLink render={<Link to={`/menu/${product.category}`} />}>{productCategoryLabel(product.category)}</BreadcrumbLink>
+        </BreadcrumbItem>
         <BreadcrumbSeparator />
-        <BreadcrumbItem><BreadcrumbPage>{product.name}</BreadcrumbPage></BreadcrumbItem>
+        <BreadcrumbItem>
+          <BreadcrumbPage>{product.name}</BreadcrumbPage>
+        </BreadcrumbItem>
       </BreadcrumbList>
     </Breadcrumb>
   );
@@ -135,11 +169,12 @@ function Related({ slug }) {
   return (
     <section className="container product-related-section" aria-labelledby="related-title">
       <div className="product-related-header">
-        <p className="home-section__kicker">More from the counter</p>
         <h2 id="related-title">Pair with your bake</h2>
       </div>
       <div className="editorial-product-grid">
-        {related.map((r) => <ProductCard key={r.slug} product={r} />)}
+        {related.map((r) => (
+          <ProductCard key={r.slug} product={r} />
+        ))}
       </div>
     </section>
   );
@@ -193,10 +228,7 @@ function ConfiguredPreview({ product, image, label }) {
   const [displayed, setDisplayed] = useState({ image, label });
 
   useEffect(() => {
-    if (!image || image === displayed.image) {
-      if (label !== displayed.label) setDisplayed((current) => ({ ...current, label }));
-      return undefined;
-    }
+    if (!image || image === displayed.image) return undefined;
 
     let cancelled = false;
     const preview = new window.Image();
@@ -205,7 +237,7 @@ function ConfiguredPreview({ product, image, label }) {
     };
     preview.onload = showPreview;
     preview.src = image;
-    if (preview.complete) showPreview();
+    if (preview.complete && preview.naturalWidth > 0) queueMicrotask(showPreview);
 
     return () => {
       cancelled = true;
@@ -220,7 +252,7 @@ function ConfiguredPreview({ product, image, label }) {
           <motion.img
             key={displayed.image}
             src={displayed.image}
-            alt={displayed.label}
+            alt={displayed.image === image ? label : displayed.label}
             fetchPriority="high"
             initial={{ opacity: reduceMotion ? 1 : 0, scale: reduceMotion ? 1 : 0.97 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -232,40 +264,9 @@ function ConfiguredPreview({ product, image, label }) {
         </AnimatePresence>
         <div className="product-campaign-stage__pill">
           <Sparkles size={13} aria-hidden="true" />
-          <span>{displayed.label}</span>
+          <span>{displayed.image === image ? label : displayed.label}</span>
         </div>
       </div>
-    </div>
-  );
-}
-
-function DeliveryEstimate({ fulfilment, setFulfilment }) {
-  return (
-    <div className="product-fulfilment-box">
-      <div className="product-composer__section-label">Fulfilment Method</div>
-      <div className="product-fulfilment__toggle-group">
-        <button
-          type="button"
-          onClick={() => setFulfilment('pickup')}
-          className={`product-fulfilment__toggle-btn${fulfilment === 'pickup' ? ' is-active' : ''}`}
-          aria-pressed={fulfilment === 'pickup'}
-        >
-          Pickup in Abeokuta
-        </button>
-        <button
-          type="button"
-          onClick={() => setFulfilment('delivery')}
-          className={`product-fulfilment__toggle-btn${fulfilment === 'delivery' ? ' is-active' : ''}`}
-          aria-pressed={fulfilment === 'delivery'}
-        >
-          Doorstep Delivery
-        </button>
-      </div>
-      <p className="product-fulfilment__note">
-        {fulfilment === 'pickup'
-          ? 'Ready at our Abeokuta counter after the 24-hour preparation window.'
-          : 'Delivered directly to your address. Delivery fee confirmed after order submission.'}
-      </p>
     </div>
   );
 }
@@ -284,7 +285,8 @@ function ProductReviews({ slug }) {
         {reviews.map((review) => (
           <div key={review.id} className="product-review-card">
             <div className="product-review-stars">
-              {'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}
+              {'★'.repeat(review.rating)}
+              {'☆'.repeat(5 - review.rating)}
             </div>
             <p className="product-review-comment">&ldquo;{review.comment}&rdquo;</p>
             {review.author && <span className="product-review-author">— {review.author}</span>}
@@ -295,7 +297,7 @@ function ProductReviews({ slug }) {
   );
 }
 
-function MobileProductAction({ price, disabled = false, onAddToCart, onBuyNow }) {
+function MobileProductAction({ price, disabled = false, onAddToCart }) {
   return (
     <div className="mobile-sticky-action">
       <div className="mobile-sticky-action__meta">
@@ -314,9 +316,7 @@ function MobileProductAction({ price, disabled = false, onAddToCart, onBuyNow })
 // Simple (no-configurator) products
 function SimpleProduct({ product }) {
   const { addToCart } = useCart();
-  const navigate = useNavigate();
   const [qty, setQty] = useState(1);
-  const [fulfilment, setFulfilment] = useState('pickup');
 
   const item = () => ({
     id: product.slug,
@@ -327,10 +327,6 @@ function SimpleProduct({ product }) {
     productId: product.id,
     variantSelections: {},
   });
-
-  function buyNow() {
-    navigate('/checkout', { state: { buyNowItem: item() } });
-  }
 
   return (
     <div className="product-campaign-page">
@@ -347,13 +343,9 @@ function SimpleProduct({ product }) {
         {/* Right Column: Information & Controls */}
         <div className="product-campaign-controls-col">
           <div className="product-campaign-header">
-            <span className="editorial-badge editorial-badge--olive">
-              {productCategoryLabel(product.category)}
-            </span>
+            <span className="editorial-badge editorial-badge--olive">{productCategoryLabel(product.category)}</span>
             <h1 className="product-campaign-title">{product.name}</h1>
-            <div className="product-campaign-price">
-              {product.startingPrice === null ? 'Price TBC' : fmtNaira(product.startingPrice)}
-            </div>
+            <div className="product-campaign-price">{product.startingPrice === null ? 'Price TBC' : fmtNaira(product.startingPrice)}</div>
             <p className="product-campaign-desc">{product.desc}</p>
           </div>
 
@@ -362,8 +354,6 @@ function SimpleProduct({ product }) {
               <div className="product-composer__section-label">Quantity</div>
               <QtyStepper qty={qty} setQty={setQty} min={1} />
             </div>
-
-            <DeliveryEstimate fulfilment={fulfilment} setFulfilment={setFulfilment} />
 
             <PreorderCommitmentCard />
 
@@ -388,7 +378,6 @@ function SimpleProduct({ product }) {
         price={product.startingPrice === null ? 'Price TBC' : fmtNaira(product.startingPrice * qty)}
         disabled={product.outOfStock}
         onAddToCart={() => addToCart(item(), { openDrawer: true })}
-        onBuyNow={buyNow}
       />
       <ProductReviews slug={product.slug} />
       <Related slug={product.slug} />
@@ -408,13 +397,10 @@ function QtyStepper({ qty, setQty, min = 1 }) {
       >
         &minus;
       </button>
-      <span aria-live="polite" className="product-quantity-val">{qty}</span>
-      <button
-        type="button"
-        aria-label="Increase quantity"
-        onClick={() => setQty(qty + 1)}
-        className="product-quantity-btn"
-      >
+      <span aria-live="polite" className="product-quantity-val">
+        {qty}
+      </span>
+      <button type="button" aria-label="Increase quantity" onClick={() => setQty(qty + 1)} className="product-quantity-btn">
         +
       </button>
     </div>
@@ -424,16 +410,17 @@ function QtyStepper({ qty, setQty, min = 1 }) {
 // Configured products
 function ConfiguredProduct({ product, rules, makeConfig }) {
   const { addToCart } = useCart();
-  const navigate = useNavigate();
   const config = useMemo(() => makeConfig(rules), [makeConfig, rules]);
   const [state, setState] = useState(() => config.initialState());
-  const [fulfilment, setFulfilment] = useState('pickup');
 
   const isFirstRender = useRef(true);
   useEffect(() => {
-    if (isFirstRender.current) { isFirstRender.current = false; return; }
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
     trackEvent('variant_selected', { productId: product.id, slug: product.slug, selections: state });
-  }, [state]);
+  }, [product.id, product.slug, state]);
 
   const unitPrice = config.unitPrice(state);
   const qty = state.qty;
@@ -455,10 +442,6 @@ function ConfiguredProduct({ product, rules, makeConfig }) {
     };
   };
 
-  function buyNow() {
-    navigate('/checkout', { state: { buyNowItem: buildItem() } });
-  }
-
   return (
     <div className="product-campaign-page">
       <div className="container">
@@ -474,14 +457,8 @@ function ConfiguredProduct({ product, rules, makeConfig }) {
         {/* Right Column: Bake Building Sequence */}
         <div className="product-campaign-controls-col">
           <div className="product-campaign-header">
-            <span className="editorial-badge editorial-badge--config">
-              <Sliders size={12} aria-hidden="true" />
-              <span>Configurable Bake</span>
-            </span>
             <h1 className="product-campaign-title">{product.name}</h1>
-            <div className="product-campaign-price">
-              {priceKnown ? fmtNaira(unitPrice) : 'Price TBC'}
-            </div>
+            <div className="product-campaign-price">{priceKnown ? fmtNaira(unitPrice) : 'Price TBC'}</div>
             <p className="product-campaign-desc">{product.desc}</p>
           </div>
 
@@ -492,15 +469,8 @@ function ConfiguredProduct({ product, rules, makeConfig }) {
             {/* Quantity */}
             <div className="product-composer__step">
               <div className="product-composer__section-label">Quantity</div>
-              <QtyStepper
-                qty={qty}
-                setQty={(q) => setState((s) => ({ ...s, qty: q }))}
-                min={config.minQty ? config.minQty(state) : 1}
-              />
+              <QtyStepper qty={qty} setQty={(q) => setState((s) => ({ ...s, qty: q }))} min={config.minQty ? config.minQty(state) : 1} />
             </div>
-
-            {/* Fulfilment */}
-            <DeliveryEstimate fulfilment={fulfilment} setFulfilment={setFulfilment} />
 
             {/* 24-Hour Preorder Promise */}
             <PreorderCommitmentCard />
@@ -513,18 +483,15 @@ function ConfiguredProduct({ product, rules, makeConfig }) {
               <button
                 type="button"
                 className="btn btn-primary btn-lg product-campaign-add-btn"
+                disabled={product.outOfStock}
                 onClick={() => addToCart(buildItem(), { openDrawer: true })}
               >
                 <ShoppingBag size={18} aria-hidden="true" />
-                <span>Add configured bake to cart</span>
+                <span>{product.outOfStock ? 'Unavailable' : 'Add to cart'}</span>
               </button>
             </div>
 
-            {config.note && (
-              <div className="product-configurator__note">
-                {config.note(state)}
-              </div>
-            )}
+            {config.note && <div className="product-configurator__note">{config.note(state)}</div>}
 
             <ProductInfoBlock product={product} />
           </div>
@@ -532,9 +499,9 @@ function ConfiguredProduct({ product, rules, makeConfig }) {
       </div>
 
       <MobileProductAction
+        disabled={product.outOfStock}
         price={priceKnown ? fmtNaira(unitPrice * qty) : 'Price TBC'}
         onAddToCart={() => addToCart(buildItem(), { openDrawer: true })}
-        onBuyNow={buyNow}
       />
       <ProductReviews slug={product.slug} />
       <Related slug={product.slug} />
@@ -567,7 +534,7 @@ function AnimatedTotal({ priceKnown, total }) {
 function makeBananaBreadConfig(rules) {
   return {
     initialState: () => ({ size: 'medium', topping: 'plain', mixed: false, qty: 1 }),
-    minQty: (state) => (rules.sizes.find((s) => s.id === state.size)?.minQty ?? 1),
+    minQty: (state) => rules.sizes.find((s) => s.id === state.size)?.minQty ?? 1,
     unitPrice: (state) => {
       const size = rules.sizes.find((s) => s.id === state.size);
       return state.mixed && size.mixedPrice ? size.mixedPrice : size.price;
@@ -580,29 +547,32 @@ function makeBananaBreadConfig(rules) {
       const topping = state.mixed ? 'Mixed Toppings' : rules.toppings.find((t) => t.id === state.topping)?.label;
       return `${size.label} Banana Bread — ${topping}`;
     },
-    note: (state) => (state.size === 'mini' ? `Minimum quantity for Mini loaves: ${rules.sizes.find((s) => s.id === 'mini').minQty}` : null),
+    note: (state) =>
+      state.size === 'mini' ? `Minimum quantity for Mini loaves: ${rules.sizes.find((s) => s.id === 'mini').minQty}` : null,
     Fields({ state, setState }) {
       const mixedAllowed = rules.mixedAllowedSizes.includes(state.size);
       const activeTopping = state.mixed ? null : rules.toppings.find((t) => t.id === state.topping);
       return (
         <div className="product-config-fields">
           <div className="product-composer__step">
-            <div className="product-composer__section-label">1. Choose Loaf Size</div>
+            <div className="product-composer__section-label">Loaf size</div>
             <PillSelector
               ariaLabel="Size"
               options={rules.sizes.map((s) => ({ id: s.id, label: `${s.label} · ${fmtNaira(s.price)}` }))}
               value={state.size}
-              onChange={(size) => setState((s) => ({
-                ...s,
-                size,
-                mixed: rules.mixedAllowedSizes.includes(size) ? s.mixed : false,
-                qty: Math.max(s.qty, rules.sizes.find((x) => x.id === size).minQty || 1),
-              }))}
+              onChange={(size) =>
+                setState((s) => ({
+                  ...s,
+                  size,
+                  mixed: rules.mixedAllowedSizes.includes(size) ? s.mixed : false,
+                  qty: Math.max(s.qty, rules.sizes.find((x) => x.id === size).minQty || 1),
+                }))
+              }
             />
           </div>
           <div className="product-composer__step">
             <div className="product-composer__label-row">
-              <div className="product-composer__section-label">2. Select Topping</div>
+              <div className="product-composer__section-label">Topping</div>
               {mixedAllowed && (
                 <button
                   type="button"
@@ -621,7 +591,11 @@ function makeBananaBreadConfig(rules) {
               onChange={(topping) => setState((s) => ({ ...s, topping }))}
             />
             <div aria-live="polite" className="product-config__field-hint">
-              {state.mixed ? 'A mix of artisan toppings distributed across your loaf.' : activeTopping ? `${activeTopping.label} topping shown on loaf.` : null}
+              {state.mixed
+                ? 'A mix of artisan toppings distributed across your loaf.'
+                : activeTopping
+                  ? `${activeTopping.label} topping shown on loaf.`
+                  : null}
             </div>
           </div>
         </div>
@@ -654,7 +628,7 @@ function makeBrowniesConfig(rules) {
       return (
         <div className="product-config-fields">
           <div className="product-composer__step">
-            <div className="product-composer__section-label">1. Choose Box Size</div>
+            <div className="product-composer__section-label">Box size</div>
             <PillSelector
               ariaLabel="Box size"
               options={rules.sizes.map((s) => ({ id: s.id, label: `${s.label} (${fmtNaira(s.price)})` }))}
@@ -664,7 +638,7 @@ function makeBrowniesConfig(rules) {
           </div>
           <div className="product-composer__step">
             <div className="product-composer__label-row">
-              <div className="product-composer__section-label">2. Select Flavour & Crunch</div>
+              <div className="product-composer__section-label">Flavour</div>
               <button
                 type="button"
                 onClick={() => setState((s) => ({ ...s, mixed: !s.mixed }))}
@@ -700,7 +674,7 @@ function makePastriesConfig(rules) {
       return (
         <div className="product-config-fields">
           <div className="product-composer__step">
-            <div className="product-composer__section-label">1. Select Pastry Tray Combination</div>
+            <div className="product-composer__section-label">Tray combination</div>
             <PillSelector
               ariaLabel="Pastry combination"
               options={rules.options.map((o) => ({ id: o.id, label: `${o.label} · ${fmtNaira(o.price)}` }))}
@@ -726,7 +700,7 @@ function makeSmallChopsConfig(rules) {
       return (
         <div className="product-config-fields">
           <div className="product-composer__step">
-            <div className="product-composer__section-label">1. Choose Platter Size</div>
+            <div className="product-composer__section-label">Platter size</div>
             <PillSelector
               ariaLabel="Platter size"
               options={rules.platters.map((p) => ({ id: p.id, label: `${p.label} · ${fmtNaira(p.price)}` }))}
@@ -764,7 +738,7 @@ function makeCakeConfig(rules) {
         <div className="product-config-fields">
           {rules.sizes && rules.sizes.length > 1 && (
             <div className="product-composer__step">
-              <div className="product-composer__section-label">1. Select Size</div>
+              <div className="product-composer__section-label">Size</div>
               <PillSelector
                 ariaLabel="Cake size"
                 options={rules.sizes.map((s) => ({ id: s.id, label: `${s.label} · ${fmtNaira(s.price)}` }))}
@@ -775,9 +749,7 @@ function makeCakeConfig(rules) {
           )}
           {rules.flavours && rules.flavours.length > 0 && (
             <div className="product-composer__step">
-              <div className="product-composer__section-label">
-                {rules.sizes?.length > 1 ? '2.' : '1.'} Choose Cake Flavour
-              </div>
+              <div className="product-composer__section-label">Flavour</div>
               <SwatchPicker
                 ariaLabel="Cake flavour"
                 options={rules.flavours.map((f) => ({ id: f.id, label: f.label, image: f.icon || f.image }))}

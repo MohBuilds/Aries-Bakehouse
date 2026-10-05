@@ -1,5 +1,16 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Check, ChevronDown, CircleAlert, LockKeyhole, MapPin, MessageCircle, ShieldCheck, ShoppingBag, Clock, Sparkles } from 'lucide-react';
+import {
+  Check,
+  ChevronDown,
+  CircleAlert,
+  LockKeyhole,
+  MapPin,
+  MessageCircle,
+  ShieldCheck,
+  ShoppingBag,
+  Clock,
+  Sparkles,
+} from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
@@ -13,12 +24,7 @@ import { toast } from '../components/ui/toast.jsx';
 import { Alert, AlertDescription } from '../components/ui/alert.jsx';
 import { DatePicker } from '../components/ui/date-picker.jsx';
 import { Input } from '../components/ui/input.jsx';
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupButton,
-  InputGroupInput,
-} from '../components/ui/input-group.jsx';
+import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from '../components/ui/input-group.jsx';
 import { Textarea } from '../components/ui/textarea.jsx';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '../components/ui/collapsible.jsx';
 
@@ -82,7 +88,7 @@ export default function Checkout() {
   }, [name, phone, email, fulfilment, address, date, time]);
 
   const formIsValid = Object.keys(errors).length === 0;
-  const visibleError = (field) => (attempted || touched[field]) ? errors[field] : '';
+  const visibleError = (field) => (attempted || touched[field] ? errors[field] : '');
   const markTouched = (field) => setTouched((current) => ({ ...current, [field]: true }));
 
   useEffect(() => {
@@ -101,15 +107,25 @@ export default function Checkout() {
   useEffect(() => {
     let cancelled = false;
     if (!isRealAccount || !customer?.id) {
-      Promise.resolve().then(() => { if (!cancelled) setSavedAddresses(null); });
-      return () => { cancelled = true; };
+      Promise.resolve().then(() => {
+        if (!cancelled) setSavedAddresses(null);
+      });
+      return () => {
+        cancelled = true;
+      };
     }
-    supabase.from('address').select('*').eq('customer_id', customer.id)
-      .order('is_default', { ascending: false }).order('created_at', { ascending: false })
+    supabase
+      .from('address')
+      .select('*')
+      .eq('customer_id', customer.id)
+      .order('is_default', { ascending: false })
+      .order('created_at', { ascending: false })
       .then(({ data, error }) => {
         if (!cancelled && !error) setSavedAddresses(data || []);
       });
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [isRealAccount, customer?.id]);
 
   useEffect(() => {
@@ -126,20 +142,40 @@ export default function Checkout() {
   if (items.length === 0) {
     return (
       <div className="container checkout-empty">
-        <span className="checkout-empty__icon"><ShoppingBag size={24} aria-hidden="true" /></span>
+        <span className="checkout-empty__icon">
+          <ShoppingBag size={24} aria-hidden="true" />
+        </span>
         <h1>Your cart is empty</h1>
         <p>Choose a loaf, box or platter from the counter before checking out.</p>
-        <Link to="/menu" className="btn btn-primary">Browse the menu</Link>
+        <Link to="/menu" className="btn btn-primary">
+          Browse the menu
+        </Link>
       </div>
     );
   }
 
   function buildOrder(status, fallbackChannel = null, paymentReference = null) {
     return {
-      items, subtotal, subtotalLabel: fmtNaira(subtotal), hasUnpricedItems,
-      discountCodeId: discount?.id || null, discountAmount, deliveryFee: 0, total,
-      fulfilment, address: address.trim(), date, time, name: name.trim(), phone: phone.trim(),
-      email: email.trim(), notes: notes.trim(), status, fallbackChannel, paymentReference, createdAt: Date.now(),
+      items,
+      subtotal,
+      subtotalLabel: fmtNaira(subtotal),
+      hasUnpricedItems,
+      discountCodeId: discount?.id || null,
+      discountAmount,
+      deliveryFee: 0,
+      total,
+      fulfilment,
+      address: address.trim(),
+      date,
+      time,
+      name: name.trim(),
+      phone: phone.trim(),
+      email: email.trim(),
+      notes: notes.trim(),
+      status,
+      fallbackChannel,
+      paymentReference,
+      createdAt: Date.now(),
     };
   }
 
@@ -241,11 +277,8 @@ export default function Checkout() {
     <div className="container checkout-page">
       <header className="checkout-header">
         <div>
-          <span className="page-kicker">Reassuring & Direct</span>
-          <h1 className="checkout-title">Complete Your Order</h1>
-          <p className="checkout-subtitle">
-            Confirm your details, preferred date, and fulfilment method before payment.
-          </p>
+          <h1 className="checkout-title">Checkout</h1>
+          <p className="checkout-subtitle">Your details, delivery and payment.</p>
         </div>
         <div className="checkout-help">
           <Link to="/delivery">Delivery Info</Link>
@@ -264,7 +297,9 @@ export default function Checkout() {
             <div className="checkout-field-grid">
               <Field id="name" label="Full Name" required error={visibleError('name')}>
                 <Input
-                  ref={(node) => { fieldRefs.current.name = node; }}
+                  ref={(node) => {
+                    fieldRefs.current.name = node;
+                  }}
                   id="name"
                   autoComplete="name"
                   value={name}
@@ -274,9 +309,17 @@ export default function Checkout() {
                   placeholder="e.g. Bukola Adeyemi"
                 />
               </Field>
-              <Field id="phone" label="Phone Number" required error={visibleError('phone')} hint="Nigerian mobile number for WhatsApp updates">
+              <Field
+                id="phone"
+                label="Phone Number"
+                required
+                error={visibleError('phone')}
+                hint="Nigerian mobile number for WhatsApp updates"
+              >
                 <Input
-                  ref={(node) => { fieldRefs.current.phone = node; }}
+                  ref={(node) => {
+                    fieldRefs.current.phone = node;
+                  }}
                   id="phone"
                   type="tel"
                   inputMode="tel"
@@ -288,9 +331,17 @@ export default function Checkout() {
                   placeholder="0801 234 5678"
                 />
               </Field>
-              <Field id="email" label="Email Address" optional error={visibleError('email')} hint="For Paystack receipt & order confirmation">
+              <Field
+                id="email"
+                label="Email Address"
+                optional
+                error={visibleError('email')}
+                hint="For Paystack receipt & order confirmation"
+              >
                 <Input
-                  ref={(node) => { fieldRefs.current.email = node; }}
+                  ref={(node) => {
+                    fieldRefs.current.email = node;
+                  }}
                   id="email"
                   type="email"
                   inputMode="email"
@@ -336,16 +387,28 @@ export default function Checkout() {
                       <button
                         key={saved.id}
                         type="button"
-                        onClick={() => { setAddress(saved.address_text); markTouched('address'); }}
+                        onClick={() => {
+                          setAddress(saved.address_text);
+                          markTouched('address');
+                        }}
                       >
-                        {saved.label || 'Saved address'}{saved.is_default ? ' · Default' : ''}
+                        {saved.label || 'Saved address'}
+                        {saved.is_default ? ' · Default' : ''}
                       </button>
                     ))}
                   </div>
                 )}
-                <Field id="address" label="Delivery Address in Abeokuta" required error={visibleError('address')} hint="Include street, area, and a recognizable landmark. Delivery fee is confirmed after address review.">
+                <Field
+                  id="address"
+                  label="Delivery Address in Abeokuta"
+                  required
+                  error={visibleError('address')}
+                  hint="Include street, area, and a recognizable landmark. Delivery fee is confirmed after address review."
+                >
                   <Textarea
-                    ref={(node) => { fieldRefs.current.address = node; }}
+                    ref={(node) => {
+                      fieldRefs.current.address = node;
+                    }}
                     id="address"
                     autoComplete="street-address"
                     value={address}
@@ -364,7 +427,9 @@ export default function Checkout() {
             <div className="checkout-field-grid checkout-field-grid--two">
               <Field id="date" label="Preferred Date" required error={visibleError('date')}>
                 <DatePicker
-                  ref={(node) => { fieldRefs.current.date = node; }}
+                  ref={(node) => {
+                    fieldRefs.current.date = node;
+                  }}
                   id="date"
                   value={date}
                   min={tomorrowISODate()}
@@ -376,7 +441,9 @@ export default function Checkout() {
               </Field>
               <Field id="time" label="Preferred Time Slot" required error={visibleError('time')}>
                 <select
-                  ref={(node) => { fieldRefs.current.time = node; }}
+                  ref={(node) => {
+                    fieldRefs.current.time = node;
+                  }}
                   id="time"
                   value={time}
                   onChange={(event) => setTime(event.target.value)}
@@ -395,12 +462,16 @@ export default function Checkout() {
           {/* Special Instructions Collapsible */}
           <Collapsible className="checkout-notes">
             <CollapsibleTrigger className="checkout-notes__trigger">
-              <span>Special instructions / allergies <small>Optional</small></span>
+              <span>
+                Special instructions / allergies <small>Optional</small>
+              </span>
               <ChevronDown size={18} aria-hidden="true" />
             </CollapsibleTrigger>
             <CollapsibleContent>
               <div className="checkout-notes__content">
-                <label htmlFor="notes" className="visually-hidden">Special instructions</label>
+                <label htmlFor="notes" className="visually-hidden">
+                  Special instructions
+                </label>
                 <Textarea
                   id="notes"
                   value={notes}
@@ -417,9 +488,15 @@ export default function Checkout() {
           <div className="checkout-summary__header">
             <div>
               <p className="checkout-summary__kicker">Order Summary</p>
-              <h2 className="checkout-summary__title">{items.length} {items.length === 1 ? 'bake' : 'bakes'}</h2>
+              <h2 className="checkout-summary__title">
+                {items.length} {items.length === 1 ? 'bake' : 'bakes'}
+              </h2>
             </div>
-            {!buyNowItem && <Link to="/cart" className="checkout-summary__edit-link">Edit cart</Link>}
+            {!buyNowItem && (
+              <Link to="/cart" className="checkout-summary__edit-link">
+                Edit cart
+              </Link>
+            )}
           </div>
 
           <div className="checkout-summary__items">
@@ -432,9 +509,7 @@ export default function Checkout() {
                   <strong>{item.name}</strong>
                   <span>Quantity {item.qty}</span>
                 </div>
-                <div className="checkout-summary__item-price">
-                  {item.price === null ? 'Price TBC' : fmtLineTotal(item.price, item.qty)}
-                </div>
+                <div className="checkout-summary__item-price">{item.price === null ? 'Price TBC' : fmtLineTotal(item.price, item.qty)}</div>
               </div>
             ))}
           </div>
@@ -464,7 +539,10 @@ export default function Checkout() {
 
           {/* Totals */}
           <div className="checkout-totals">
-            <div><span>Subtotal</span><strong>{fmtNaira(subtotal)}</strong></div>
+            <div>
+              <span>Subtotal</span>
+              <strong>{fmtNaira(subtotal)}</strong>
+            </div>
             {discount && (
               <div className="checkout-totals__discount">
                 <span>Discount · {discount.code}</span>
@@ -513,8 +591,14 @@ export default function Checkout() {
           )}
 
           <div className="checkout-trust">
-            <span><LockKeyhole size={13} aria-hidden="true" />Secured via Paystack</span>
-            <span><ShieldCheck size={13} aria-hidden="true" />Verified before oven preparation</span>
+            <span>
+              <LockKeyhole size={13} aria-hidden="true" />
+              Secured via Paystack
+            </span>
+            <span>
+              <ShieldCheck size={13} aria-hidden="true" />
+              Verified before oven preparation
+            </span>
           </div>
         </aside>
       </div>
@@ -523,14 +607,23 @@ export default function Checkout() {
       {(paymentState === 'failed' || paymentState === 'unconfirmed') && (
         <div
           className="checkout-dialog-backdrop"
-          onMouseDown={(event) => { if (event.target === event.currentTarget) setPaymentState('idle'); }}
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) setPaymentState('idle');
+          }}
         >
-          <div ref={paymentDialogRef} className="checkout-dialog" role="dialog" aria-modal="true" aria-labelledby="payment-recovery-title" tabIndex={-1}>
-            <span className="checkout-dialog__icon"><LockKeyhole size={22} aria-hidden="true" /></span>
+          <div
+            ref={paymentDialogRef}
+            className="checkout-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="payment-recovery-title"
+            tabIndex={-1}
+          >
+            <span className="checkout-dialog__icon">
+              <LockKeyhole size={22} aria-hidden="true" />
+            </span>
             <p className="checkout-dialog__kicker">Payment Status</p>
-            <h2 id="payment-recovery-title">
-              {paymentState === 'failed' ? 'Payment was not completed' : 'Payment confirmation pending'}
-            </h2>
+            <h2 id="payment-recovery-title">{paymentState === 'failed' ? 'Payment was not completed' : 'Payment confirmation pending'}</h2>
             <p className="checkout-dialog__copy">
               {paymentState === 'failed'
                 ? 'The payment popup was closed before confirmation. Your selected items and order details are safe here.'
@@ -597,14 +690,23 @@ function Field({ id, label, required, optional, error, hint, children }) {
     <div className={`checkout-field${error ? ' has-error' : ''}`}>
       <label htmlFor={id} className="checkout-field__label">
         {label}
-        {required && <span className="checkout-field__required" aria-hidden="true"> *</span>}
+        {required && (
+          <span className="checkout-field__required" aria-hidden="true">
+            {' '}
+            *
+          </span>
+        )}
         {optional && <small className="checkout-field__optional">Optional</small>}
       </label>
       {children}
       {error ? (
-        <p id={`${id}-error`} className="field-message field-message--error">{error}</p>
+        <p id={`${id}-error`} className="field-message field-message--error">
+          {error}
+        </p>
       ) : hint ? (
-        <p id={`${id}-hint`} className="field-message">{hint}</p>
+        <p id={`${id}-hint`} className="field-message">
+          {hint}
+        </p>
       ) : null}
     </div>
   );
@@ -612,12 +714,7 @@ function Field({ id, label, required, optional, error, hint, children }) {
 
 function ToggleButton({ active, onClick, children }) {
   return (
-    <button
-      type="button"
-      className={`checkout-toggle-btn${active ? ' is-active' : ''}`}
-      aria-pressed={active}
-      onClick={onClick}
-    >
+    <button type="button" className={`checkout-toggle-btn${active ? ' is-active' : ''}`} aria-pressed={active} onClick={onClick}>
       {active && <Check size={14} aria-hidden="true" />}
       <span>{children}</span>
     </button>

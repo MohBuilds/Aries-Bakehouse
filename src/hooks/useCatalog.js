@@ -54,14 +54,14 @@ export function useProducts(initial) {
 }
 
 export function useProduct(slug) {
-  const { data, loading, error } = useAsync(async () => {
+  const { data, loading, error, retry } = useAsync(async () => {
     const product = await (await loadCatalog()).findProduct(slug);
     if (!product) return null;
     const rules = product.configurator ? await (await loadCatalog()).getVariantRules(slug, product.configurator) : null;
     return { product, rules };
   }, [slug]);
 
-  return { product: data?.product ?? null, rules: data?.rules ?? null, loading, error };
+  return { product: data?.product ?? null, rules: data?.rules ?? null, loading, error, retry };
 }
 
 export function useRelatedProducts(slug, count = 4) {
