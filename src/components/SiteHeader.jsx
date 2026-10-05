@@ -3,7 +3,7 @@ import { Link, NavLink, useLocation } from 'react-router-dom';
 import { useCart } from '../context/CartContext.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useCategories } from '../hooks/useCatalog.js';
-import { supabase } from '../lib/supabaseClient.js';
+import { getSupabase } from '../lib/supabaseLazy.js';
 import ThemeToggle from './ThemeToggle.jsx';
 import BrandLogo from './BrandLogo.jsx';
 
@@ -26,7 +26,7 @@ export default function SiteHeader() {
     // On the homepage the header stays in its dark "over hero" state for the
     // whole length of the film, then switches once the cream page begins.
     const updateHeader = () => {
-      const film = document.getElementById('brownie-film');
+      const film = document.querySelector('[data-film]');
       const limit = film ? film.offsetTop + film.offsetHeight - 72 : 24;
       setScrolled(window.scrollY > limit);
     };
@@ -37,11 +37,8 @@ export default function SiteHeader() {
 
   useEffect(() => {
     let cancelled = false;
-    supabase
-      .from('site_content')
-      .select('value')
-      .eq('key', 'announcement_bar')
-      .maybeSingle()
+    getSupabase()
+      .then((supabase) => supabase.from('site_content').select('value').eq('key', 'announcement_bar').maybeSingle())
       .then(({ data }) => {
         if (!cancelled && data?.value) setAnnouncement((current) => ({ ...current, ...data.value }));
       });

@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react';
-import { supabase } from '../lib/supabaseClient.js';
+import { getSupabase } from '../lib/supabaseLazy.js';
 
 const AuthContext = createContext(null);
 
@@ -14,9 +14,18 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => setSession(data.session ?? null));
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, sess) => setSession(sess));
-    return () => sub.subscription.unsubscribe();
+    let cancelled = false;
+    let unsubscribe = () => {};
+    getSupabase().then((supabase) => {
+      if (cancelled) return;
+      supabase.auth.getSession().then(({ data }) => !cancelled && setSession(data.session ?? null));
+      const { data: sub } = supabase.auth.onAuthStateChange((_event, sess) => setSession(sess));
+      unsubscribe = () => sub.subscription.unsubscribe();
+    });
+    return () => {
+      cancelled = true;
+      unsubscribe();
+    };
   }, []);
 
   useEffect(() => {
@@ -31,6 +40,7 @@ export function AuthProvider({ children }) {
         return;
       }
       setLoading(true);
+      const supabase = await getSupabase();
       const { data } = await supabase
         .from('customer')
         .select('id, name, email, phone, role, is_guest')
@@ -42,7 +52,9 @@ export function AuthProvider({ children }) {
       }
     };
     loadCustomer();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [session]);
 
   const value = {
@@ -52,7 +64,7 @@ export function AuthProvider({ children }) {
     isRealAccount: !!customer && !customer.is_guest,
     isAdmin: customer?.role === 'admin',
     loading,
-    signOut: () => supabase.auth.signOut(),
+    signOut: () => getSupabase().then((supabase) => supabase.auth.signOut()),
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
@@ -69,6 +81,7 @@ export function useAuth() {
 // than eagerly on every page load, per the plan (avoids creating a throwaway
 // auth.users row for visitors who never interact with the cart).
 export async function ensureSession() {
+  const supabase = await getSupabase();
   const { data } = await supabase.auth.getSession();
   if (data.session) return data.session;
   const { data: signInData, error } = await supabase.auth.signInAnonymously();

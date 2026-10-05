@@ -1,5 +1,7 @@
-import { useEffect, useState } from 'react';
-import * as catalog from '../lib/catalog.js';
+import { useCallback, useEffect, useState } from 'react';
+// Loaded on demand so pages that already have server data (e.g. the
+// homepage) don't pull the Supabase SDK onto the critical path.
+const loadCatalog = () => import('../lib/catalog.js');
 
 // Tiny shared async-effect helper — every hook below follows the same
 // loading/error/data shape, matching the "loading grid/gallery" states the
@@ -13,12 +15,14 @@ import * as catalog from '../lib/catalog.js';
 // already fetched. Callers that don't pass `initial` keep fetching
 // client-side exactly as before.
 function useAsync(fn, deps, initial) {
+  const [attempt, setAttempt] = useState(0);
+  const retry = useCallback(() => setAttempt((current) => current + 1), []);
   const [state, setState] = useState(
     initial !== undefined ? { data: initial, loading: false, error: null } : { data: null, loading: true, error: null },
   );
 
   useEffect(() => {
-    if (initial !== undefined) return;
+    if (initial !== undefined && attempt === 0) return;
     let cancelled = false;
     const load = async () => {
       await Promise.resolve();
@@ -32,26 +36,28 @@ function useAsync(fn, deps, initial) {
       }
     };
     load();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, deps);
+  }, [...deps, attempt]);
 
-  return state;
+  return { ...state, retry };
 }
 
 export function useCategories(initial) {
-  return useAsync(() => catalog.getCategories(), [], initial);
+  return useAsync(async () => (await loadCatalog()).getCategories(), [], initial);
 }
 
 export function useProducts(initial) {
-  return useAsync(() => catalog.getProducts(), [], initial);
+  return useAsync(async () => (await loadCatalog()).getProducts(), [], initial);
 }
 
 export function useProduct(slug) {
   const { data, loading, error } = useAsync(async () => {
-    const product = await catalog.findProduct(slug);
+    const product = await (await loadCatalog()).findProduct(slug);
     if (!product) return null;
-    const rules = product.configurator ? await catalog.getVariantRules(slug, product.configurator) : null;
+    const rules = product.configurator ? await (await loadCatalog()).getVariantRules(slug, product.configurator) : null;
     return { product, rules };
   }, [slug]);
 
@@ -59,21 +65,21 @@ export function useProduct(slug) {
 }
 
 export function useRelatedProducts(slug, count = 4) {
-  return useAsync(() => catalog.relatedProducts(slug, count), [slug, count]);
+  return useAsync(async () => (await loadCatalog()).relatedProducts(slug, count), [slug, count]);
 }
 
 export function useHomepageBestsellers(initial) {
-  return useAsync(() => catalog.getHomepageBestsellers(), [], initial);
+  return useAsync(async () => (await loadCatalog()).getHomepageBestsellers(), [], initial);
 }
 
 export function useHomepageFeatured(initial) {
-  return useAsync(() => catalog.getHomepageFeatured(), [], initial);
+  return useAsync(async () => (await loadCatalog()).getHomepageFeatured(), [], initial);
 }
 
 export function useHomepageReviews(count = 3) {
-  return useAsync(() => catalog.getHomepageReviews(count), [count]);
+  return useAsync(async () => (await loadCatalog()).getHomepageReviews(count), [count]);
 }
 
 export function useProductReviews(slug, count = 6) {
-  return useAsync(() => catalog.getProductReviews(slug, count), [slug, count]);
+  return useAsync(async () => (await loadCatalog()).getProductReviews(slug, count), [slug, count]);
 }

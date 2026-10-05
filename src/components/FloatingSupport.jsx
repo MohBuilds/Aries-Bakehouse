@@ -1,20 +1,30 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Button } from './ui/button.jsx';
 
 export default function FloatingSupport() {
   const { pathname } = useLocation();
+  const [overFooter, setOverFooter] = useState(false);
+
+  // The footer carries its own WhatsApp links, and the floating button would
+  // otherwise sit on top of its legal links. Hide it while the footer shows.
+  useEffect(() => {
+    const footer = document.querySelector('[data-site-footer]');
+    if (!footer || !('IntersectionObserver' in window)) return undefined;
+    const observer = new IntersectionObserver(([entry]) => setOverFooter(entry.isIntersecting), {
+      rootMargin: '0px 0px -12% 0px',
+    });
+    observer.observe(footer);
+    return () => observer.disconnect();
+  }, [pathname]);
+
   if (pathname === '/contact') return null;
 
   return (
-    <Button asChild variant="whatsapp" className="floating-support">
-      <a
-        href="https://wa.me/2348121145785"
-        target="_blank"
-        rel="noreferrer"
-        aria-label="Open WhatsApp support"
-      >
+    <Button asChild variant="whatsapp" className={`floating-support${overFooter ? ' is-tucked' : ''}`}>
+      <a href="https://wa.me/2348121145785" target="_blank" rel="noreferrer" aria-label="Open WhatsApp support">
         <WhatsAppIcon />
         <span>Support</span>
       </a>

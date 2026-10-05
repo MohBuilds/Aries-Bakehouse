@@ -30,7 +30,7 @@ const SUPPORT_URL = 'https://wa.me/2348121145785';
 
 export default function Footer({ showOrdering = false }) {
   return (
-    <footer className="site-footer">
+    <footer className="site-footer" data-site-footer>
       {/* Top closing invitation */}
       <div className="site-footer__closing-hero">
         <div className="container site-footer__closing-inner">
@@ -51,6 +51,7 @@ export default function Footer({ showOrdering = false }) {
             <a href={SUPPORT_URL} target="_blank" rel="noreferrer" className="btn site-footer__cta-whatsapp">
               <MessageCircle size={17} aria-hidden="true" />
               <span>WhatsApp support</span>
+              <span className="visually-hidden"> (opens in a new tab)</span>
             </a>
           </div>
         </div>
@@ -63,7 +64,7 @@ export default function Footer({ showOrdering = false }) {
         <div className="container site-footer__main-grid">
           {/* Col 1: Brand & Preorder Promise */}
           <div className="site-footer__brand-col">
-            <BrandLogo className="site-footer__logo" />
+            <BrandLogo className="site-footer__logo" loading="lazy" />
             <p className="site-footer__mission">
               Handcrafted bakery in Abeokuta, Nigeria. We celebrate real ingredients, deep chocolate, and custom bakes tailored to your moment.
             </p>
@@ -112,6 +113,7 @@ export default function Footer({ showOrdering = false }) {
             <a href={SUPPORT_URL} target="_blank" rel="noreferrer" className="site-footer__support-link">
               <MessageCircle size={16} aria-hidden="true" />
               <span>+234 812 114 5785</span>
+              <span className="visually-hidden"> (chat on WhatsApp, opens in a new tab)</span>
             </a>
             <span className="site-footer__hours-tag">
               Mon–Sat: 9:00 AM – 7:00 PM WAT

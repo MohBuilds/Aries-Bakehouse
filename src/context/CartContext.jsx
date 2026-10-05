@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { supabase } from '../lib/supabaseClient.js';
+import { getSupabase } from '../lib/supabaseLazy.js';
 import { ensureSession } from './AuthContext.jsx';
 import { trackEvent } from '../lib/analytics.js';
 import { toast } from '../components/ui/toast.jsx';
@@ -27,6 +27,7 @@ export function CartProvider({ children }) {
 
   async function resolveCustomerId(session) {
     if (customerIdRef.current) return customerIdRef.current;
+    const supabase = await getSupabase();
     const { data, error } = await supabase.from('customer').select('id').eq('auth_user_id', session.user.id).maybeSingle();
     if (error) throw error;
     customerIdRef.current = data.id;
@@ -37,6 +38,7 @@ export function CartProvider({ children }) {
   // actually mutated, not on every page load — see AuthContext.ensureSession.
   async function ensureCart() {
     if (cartIdRef.current) return cartIdRef.current;
+    const supabase = await getSupabase();
     const session = await ensureSession();
     const customerId = await resolveCustomerId(session);
     let { data: cart, error } = await supabase.from('cart').select('id').eq('customer_id', customerId).eq('status', 'active').maybeSingle();
@@ -55,6 +57,7 @@ export function CartProvider({ children }) {
   // just from viewing a page, that only happens on first real mutation.
   useEffect(() => {
     (async () => {
+      const supabase = await getSupabase();
       const { data } = await supabase.auth.getSession();
       if (!data.session) return;
       try {
@@ -82,22 +85,39 @@ export function CartProvider({ children }) {
 
     (async () => {
       try {
+        const supabase = await getSupabase();
         const cartId = await ensureCart();
         const { data: existingRows, error: selErr } = await supabase
-          .from('cart_item').select('id, quantity').eq('cart_id', cartId).eq('product_id', item.productId);
+          .from('cart_item')
+          .select('id, quantity')
+          .eq('cart_id', cartId)
+          .eq('product_id', item.productId);
         if (selErr) throw selErr;
-        const match = (existingRows || []).find((r) => r.id === item._dbId)
-          || (existingRows || []).find((r) => JSON.stringify(r.variant_selections) === JSON.stringify(item.variantSelections || {}));
+        const match =
+          (existingRows || []).find((r) => r.id === item._dbId) ||
+          (existingRows || []).find((r) => JSON.stringify(r.variant_selections) === JSON.stringify(item.variantSelections || {}));
 
         if (match) {
-          const { error } = await supabase.from('cart_item').update({ quantity: match.quantity + (item.qty || 1) }).eq('id', match.id);
+          const { error } = await supabase
+            .from('cart_item')
+            .update({ quantity: match.quantity + (item.qty || 1) })
+            .eq('id', match.id);
           if (error) throw error;
           setItems((prev) => prev.map((i) => (i.id === item.id ? { ...i, _dbId: match.id } : i)));
         } else {
-          const { data: inserted, error } = await supabase.from('cart_item').insert({
-            cart_id: cartId, product_id: item.productId, variant_selections: item.variantSelections || {},
-            quantity: item.qty || 1, unit_price: item.price, name_snapshot: item.name, image_url: item.image,
-          }).select('id').single();
+          const { data: inserted, error } = await supabase
+            .from('cart_item')
+            .insert({
+              cart_id: cartId,
+              product_id: item.productId,
+              variant_selections: item.variantSelections || {},
+              quantity: item.qty || 1,
+              unit_price: item.price,
+              name_snapshot: item.name,
+              image_url: item.image,
+            })
+            .select('id')
+            .single();
           if (error) throw error;
           setItems((prev) => prev.map((i) => (i.id === item.id ? { ...i, _dbId: inserted.id } : i)));
         }
@@ -117,12 +137,14 @@ export function CartProvider({ children }) {
     });
     trackEvent('cart_updated', { action: 'remove', itemId: id });
     if (removedDbId) {
-      supabase.from('cart_item').delete().eq('id', removedDbId).then(({ error }) => {
-        if (error) {
-          console.error('removeFromCart sync failed:', error);
-          toast.error('Cart removal was not saved', { description: 'Refresh and try again.' });
-        }
-      });
+      getSupabase()
+        .then((supabase) => supabase.from('cart_item').delete().eq('id', removedDbId))
+        .then(({ error }) => {
+          if (error) {
+            console.error('removeFromCart sync failed:', error);
+            toast.error('Cart removal was not saved', { description: 'Refresh and try again.' });
+          }
+        });
     }
   }, []);
 
@@ -136,13 +158,17 @@ export function CartProvider({ children }) {
     trackEvent('cart_updated', { action: 'quantity', itemId: id, qty });
     if (!dbId) return;
     if (qty > 0) {
-      supabase.from('cart_item').update({ quantity: qty }).eq('id', dbId).then(({ error }) => {
-        if (error) console.error('updateQty sync failed:', error);
-      });
+      getSupabase()
+        .then((supabase) => supabase.from('cart_item').update({ quantity: qty }).eq('id', dbId))
+        .then(({ error }) => {
+          if (error) console.error('updateQty sync failed:', error);
+        });
     } else {
-      supabase.from('cart_item').delete().eq('id', dbId).then(({ error }) => {
-        if (error) console.error('updateQty(0) sync failed:', error);
-      });
+      getSupabase()
+        .then((supabase) => supabase.from('cart_item').delete().eq('id', dbId))
+        .then(({ error }) => {
+          if (error) console.error('updateQty(0) sync failed:', error);
+        });
     }
   }, []);
 
@@ -150,9 +176,11 @@ export function CartProvider({ children }) {
     const dbIds = items.map((i) => i._dbId).filter(Boolean);
     setItems([]);
     if (dbIds.length > 0) {
-      supabase.from('cart_item').delete().in('id', dbIds).then(({ error }) => {
-        if (error) console.error('clearCart sync failed:', error);
-      });
+      getSupabase()
+        .then((supabase) => supabase.from('cart_item').delete().in('id', dbIds))
+        .then(({ error }) => {
+          if (error) console.error('clearCart sync failed:', error);
+        });
     }
   }, [items]);
 
@@ -166,9 +194,17 @@ export function CartProvider({ children }) {
   const hasUnpricedItems = useMemo(() => items.some((i) => i.price === null || i.price === undefined), [items]);
 
   const value = {
-    items, count, subtotal, hasUnpricedItems,
-    addToCart, removeFromCart, updateQty, clearCart,
-    drawerOpen, openDrawer, closeDrawer,
+    items,
+    count,
+    subtotal,
+    hasUnpricedItems,
+    addToCart,
+    removeFromCart,
+    updateQty,
+    clearCart,
+    drawerOpen,
+    openDrawer,
+    closeDrawer,
   };
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

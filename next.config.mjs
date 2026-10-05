@@ -43,7 +43,15 @@ const nextConfig = {
     return config;
   },
   async headers() {
-    return [{ source: '/:path*', headers: SECURITY_HEADERS }];
+    return [
+      { source: '/:path*', headers: SECURITY_HEADERS },
+      // Product media changes rarely; let browsers and the CDN reuse it for a
+      // week instead of revalidating every film frame on every visit.
+      {
+        source: '/uploads/:path*',
+        headers: [{ key: 'Cache-Control', value: 'public, max-age=604800, stale-while-revalidate=86400' }],
+      },
+    ];
   },
 };
 

@@ -9,12 +9,12 @@ const ORDER_STEPS = [
   {
     num: '02',
     title: 'Customize the details',
-    copy: 'Tailor your loaf crunches, brownie box assortments, dipping sauces, and flavours to your exact taste.',
+    copy: 'Pick loaf toppings, brownie flavours, tray options and sizes — or mix them where the menu allows.',
   },
   {
     num: '03',
     title: 'Baked fresh to order',
-    copy: 'Prepared from scratch in our Abeokuta kitchen with 24 hours advance notice for pickup or delivery.',
+    copy: 'Baked in our Abeokuta kitchen for your order. Give us 24 hours’ notice, then pick up or have it delivered.',
   },
 ];
 
@@ -23,11 +23,8 @@ export default function OrderingWorks() {
     <section className="ordering-timeline-section" aria-labelledby="ordering-title">
       <div className="container ordering-timeline__inner">
         <div className="ordering-timeline__header">
-
           <h2 id="ordering-title">How ordering works</h2>
-          <p className="ordering-timeline__subtitle">
-            Three simple steps between your craving and fresh oven warmth.
-          </p>
+          <p className="ordering-timeline__subtitle">Three simple steps between your craving and fresh oven warmth.</p>
         </div>
 
         <div className="ordering-timeline__grid" role="list">
@@ -39,7 +36,6 @@ export default function OrderingWorks() {
             </div>
           ))}
         </div>
-
       </div>
     </section>
   );

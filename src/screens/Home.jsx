@@ -1,18 +1,18 @@
 'use client';
 
 import { useCategories } from '../hooks/useCatalog.js';
-import BrownieFilm from '../components/film/BrownieFilm.jsx';
+import BananaFilm from '../components/film/BananaFilm.jsx';
 import CounterRail from '../components/CounterRail.jsx';
 
-export default function Home({ categories: initialCategories, featured = [] } = {}) {
+export default function Home({ categories: initialCategories, products = [], bananaSizes = null } = {}) {
   const { data: categories, loading: categoriesLoading } = useCategories(initialCategories);
 
   return (
     <div className="home-page">
-      {/* Act 1–2: Scroll-scrubbed Brownie Box film (hero → 360° → CTA) */}
-      <BrownieFilm featured={featured} />
+      {/* Act 1: Scroll-scrubbed Banana Bread film (hero → toppings → sizes → order) */}
+      <BananaFilm sizes={bananaSizes} />
 
-      {/* Act 3: The Integrated Counter Catalogue Stage */}
+      {/* Act 2: The catalogue, priced from live product data */}
       {categoriesLoading ? (
         <div className="container category-showcase__loading" aria-label="Loading menu categories">
           {Array.from({ length: 4 }).map((_, index) => (
@@ -20,10 +20,8 @@ export default function Home({ categories: initialCategories, featured = [] } = 
           ))}
         </div>
       ) : (
-        <CounterRail categories={categories} />
+        <CounterRail categories={categories} products={products} />
       )}
-
-
     </div>
   );
 }

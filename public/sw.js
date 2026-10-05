@@ -1,4 +1,4 @@
-const VERSION = 'aries11-pwa-v1';
+const VERSION = 'aries11-pwa-v2';
 const PAGE_CACHE = `${VERSION}-pages`;
 const ASSET_CACHE = `${VERSION}-assets`;
 const PRECACHE = ['/', '/menu', '/offline', '/pwa-icon-192.png', '/pwa-icon-512.png'];
@@ -58,6 +58,10 @@ self.addEventListener('fetch', (event) => {
     if (isPublicPage(url.pathname)) event.respondWith(networkFirstPage(request));
     return;
   }
+
+  // Film frame sequences are hundreds of files; leave them to the HTTP cache
+  // instead of growing the service-worker cache without bound.
+  if (url.pathname.startsWith('/uploads/film')) return;
 
   if (['image', 'font', 'style', 'script'].includes(request.destination)) {
     event.respondWith(staleWhileRevalidate(request));
