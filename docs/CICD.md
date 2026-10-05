@@ -32,6 +32,10 @@ Already set by the initial setup: `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID`,
 validate the build; Vercel builds production with its own stored variables.)
 
 ### 3. Baseline the production database (once)
+
+> **Done on 2026-10-05:** the 14 original migrations were recorded as applied and
+> `20261005000100_ordering_hardening` was pushed. Skip this step unless you create a new
+> Supabase project.
 Production was built by hand-running SQL, so its migration history is empty. Until
 it's recorded, the migrate job refuses to run (it would otherwise try to re-apply
 the whole schema to live data).

@@ -5,6 +5,7 @@ import { Button } from '../components/ui/button.jsx';
 import { DatePicker } from '../components/ui/date-picker.jsx';
 import { toast } from '../components/ui/toast.jsx';
 import { supabase } from '../lib/supabaseClient.js';
+import { describeSlot, loadSlots } from '../lib/ordering.js';
 import { fmtNaira } from '../lib/format.js';
 import { AdminEmpty, AdminLoading, AdminPage, AdminPageHeader, AdminStatusBadge, AdminToolbar } from './AdminPrimitives.jsx';
 
@@ -22,6 +23,10 @@ const PAGE_SIZE = 50;
 export default function OrdersList() {
   const [params] = useSearchParams();
   const [orders, setOrders] = useState(null);
+  const [slots, setSlots] = useState(null);
+  useEffect(() => {
+    loadSlots().then(setSlots);
+  }, []);
   const [hasMore, setHasMore] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const requestedStatus = params.get('status');
@@ -143,7 +148,7 @@ export default function OrdersList() {
             {filtered.map((order) => <tr key={order.id}>
               <td><Link to={`/admin/orders/${order.id}`}><strong>#{order.order_number}</strong></Link><small>{new Date(order.created_at).toLocaleDateString('en-NG')}</small></td>
               <td>{order.customer_name}<small>{order.customer_phone}</small></td>
-              <td><strong className="admin-table__primary">{order.fulfilment_type === 'pickup' ? 'Pickup' : 'Delivery'}</strong><small>{order.preferred_date} · {order.preferred_time}</small></td>
+              <td><strong className="admin-table__primary">{order.fulfilment_type === 'pickup' ? 'Pickup' : 'Delivery'}</strong><small>{order.preferred_date} · {describeSlot(slots, order.preferred_time)}{order.delivery_area ? ` · ${order.delivery_area}` : ''}{order.delivery_fee_pending ? ' · fee TBC' : ''}</small></td>
               <td>{order.order_item?.length || 0}</td>
               <td><div className="admin-status-editor"><select className="admin-table__select" value={statusDrafts[order.id] ?? order.status} disabled={savingId === order.id} onChange={(event) => setStatusDrafts((current) => ({ ...current, [order.id]: event.target.value }))} aria-label={`Choose order ${order.order_number} status`}>{STATUSES.map((status) => <option key={status} value={status}>{STATUS_LABEL[status]}</option>)}</select>{statusDrafts[order.id] && statusDrafts[order.id] !== order.status && <div className="admin-status-editor__actions"><button type="button" disabled={savingId === order.id} onClick={() => updateStatus(order, statusDrafts[order.id])}>{savingId === order.id ? 'Saving…' : 'Apply'}</button><button type="button" onClick={() => setStatusDrafts((current) => { const next = { ...current }; delete next[order.id]; return next; })}>Discard</button></div>}</div></td>
               <td className="is-numeric"><strong>{fmtNaira(order.total)}</strong><span className="admin-table__mobile-status"><AdminStatusBadge status={order.status}>{STATUS_LABEL[order.status]}</AdminStatusBadge></span></td>

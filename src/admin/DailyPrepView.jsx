@@ -81,6 +81,8 @@ function MetricCard({ label, value, note, icon: Icon }) {
   );
 }
 
+const slotName = (code) => (code ? code.charAt(0).toUpperCase() + code.slice(1) : '');
+
 export default function DailyPrepView() {
   const today = useMemo(() => new Date(), []);
   const [selectedDate, setSelectedDate] = useState(dateKey(addDays(today, 1)));
@@ -138,7 +140,8 @@ export default function DailyPrepView() {
       .select('*, order_item(*)')
       .eq('preferred_date', selectedDate)
       .in('status', ['confirmed', 'preparing'])
-      .order('preferred_time')
+      .order('scheduled_start', { ascending: true, nullsFirst: false })
+      .order('created_at', { ascending: true })
       .then(({ data, error: prepError }) => {
         if (cancelled) return;
         if (prepError) {
@@ -329,7 +332,7 @@ export default function DailyPrepView() {
                   <tr key={order.id}>
                     <td><Link to={`/admin/orders/${order.id}`}><strong>#{order.order_number}</strong></Link></td>
                     <td>{order.customer_name}</td>
-                    <td>{formatShortDate(order.preferred_date)} · {order.preferred_time}</td>
+                    <td>{formatShortDate(order.preferred_date)} · {slotName(order.preferred_time)}</td>
                     <td><StatusBadge status={order.status} /></td>
                     <td className="is-numeric"><strong>{fmtNaira(order.total)}</strong></td>
                   </tr>
@@ -385,7 +388,7 @@ export default function DailyPrepView() {
                     <div className="admin-prep-order__main">
                       <div>
                         <Link to={`/admin/orders/${order.id}`}>#{order.order_number}</Link>
-                        <span>{order.customer_name} · {order.fulfilment_type === 'pickup' ? 'Pickup' : 'Delivery'} · {order.preferred_time}</span>
+                        <span>{order.customer_name} · {order.fulfilment_type === 'pickup' ? 'Pickup' : 'Delivery'} · {slotName(order.preferred_time)}</span>
                       </div>
                       <strong>{fmtNaira(order.total)}</strong>
                     </div>

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient.js';
+import { describeSlot, loadSlots } from '../lib/ordering.js';
 import { fmtNaira, fmtLineTotal } from '../lib/format.js';
 import { trackEvent } from '../lib/analytics.js';
 import { toast } from '../components/ui/toast.jsx';
@@ -16,6 +17,10 @@ const STATUS_LABEL = {
 export default function OrderDetailAdmin() {
   const { orderId } = useParams();
   const [order, setOrder] = useState(undefined);
+  const [slots, setSlots] = useState(null);
+  useEffect(() => {
+    loadSlots().then(setSlots);
+  }, []);
   const [saving, setSaving] = useState(false);
   const [verifying, setVerifying] = useState(null);
   const [pendingStatus, setPendingStatus] = useState(null);
@@ -99,8 +104,9 @@ export default function OrderDetailAdmin() {
 
       <AdminPanel title="Fulfilment" description="Customer timing, destination, and preparation notes.">
         <dl className="admin-detail-list">
-          <div><dt>Method</dt><dd>{order.fulfilment_type === 'pickup' ? 'Pickup' : `Delivery — ${order.address_text || 'address pending'}`}</dd></div>
-          <div><dt>Preferred time</dt><dd>{order.preferred_date} ({order.preferred_time})</dd></div>
+          <div><dt>Method</dt><dd>{order.fulfilment_type === 'pickup' ? 'Pickup' : `Delivery to ${[order.delivery_area, order.address_text].filter(Boolean).join(' · ') || 'address pending'}`}</dd></div>
+          {order.fulfilment_type === 'delivery' && order.delivery_fee_pending && <div><dt>Delivery fee</dt><dd><strong>Still to confirm with the customer on WhatsApp</strong> ({order.customer_phone})</dd></div>}
+          <div><dt>Date and slot</dt><dd>{new Date(`${order.preferred_date}T12:00:00`).toLocaleDateString('en-NG', { weekday: 'long', day: 'numeric', month: 'long' })}, {describeSlot(slots, order.preferred_time)}</dd></div>
           <div><dt>Notes</dt><dd>{order.special_instructions || 'None supplied'}</dd></div>
           <div><dt>Fallback channel</dt><dd>{order.fallback_channel || 'Online payment'}</dd></div>
         </dl>

@@ -23,6 +23,10 @@ function mapOrderRow(row) {
     status: row.status,
     fulfilment: row.fulfilment_type,
     address: row.address_text,
+    deliveryArea: row.delivery_area,
+    deliveryFee: row.delivery_fee,
+    deliveryFeePending: row.delivery_fee_pending,
+    discountAmount: row.discount_amount,
     date: row.preferred_date,
     time: row.preferred_time,
     name: row.customer_name,
@@ -73,22 +77,21 @@ export async function getOrder(id) {
 // sync with price_order_item() in schema.sql if the menu's pricing logic
 // changes.
 export async function saveOrder(orderData) {
+  // Deliberately NOT sent: status, totals, delivery fee. The database decides
+  // all of those (create_order ignores any client-supplied number) and returns
+  // the authoritative totals, which the caller must use for the Paystack charge.
   const payload = {
-    status: orderData.status,
     fulfilment_type: orderData.fulfilment,
-    address_text: orderData.address || null,
+    delivery_option_id: orderData.fulfilment === 'delivery' ? orderData.deliveryOptionId : null,
+    delivery_area: orderData.fulfilment === 'delivery' ? orderData.deliveryArea : null,
+    address_text: orderData.fulfilment === 'delivery' ? orderData.address || null : null,
     preferred_date: orderData.date,
     preferred_time: orderData.time,
     customer_name: orderData.name,
     customer_phone: orderData.phone,
     customer_email: orderData.email || null,
     special_instructions: orderData.notes || null,
-    subtotal: orderData.subtotal,
-    delivery_fee: orderData.deliveryFee || 0,
     discount_code_id: orderData.discountCodeId || null,
-    discount_amount: orderData.discountAmount || 0,
-    total: orderData.total ?? orderData.subtotal,
-    has_unpriced_items: orderData.hasUnpricedItems,
     fallback_channel: orderData.fallbackChannel || null,
     payment_reference: orderData.paymentReference || null,
     items: orderData.items.map((it) => ({
@@ -96,15 +99,30 @@ export async function saveOrder(orderData) {
       name: it.name,
       variant_selections: it.variantSelections || {},
       quantity: it.qty,
-      unit_price: it.price,
-      line_total: it.price === null ? null : it.price * it.qty,
       image_url: it.image,
     })),
   };
 
   const { data, error } = await supabase.rpc('create_order', { payload });
   if (error) throw error;
-  return data.id; // route param — order_number is available via getOrder() for display
+  return {
+    id: data.id,
+    orderNumber: data.order_number,
+    subtotal: data.subtotal,
+    deliveryFee: data.delivery_fee,
+    deliveryFeePending: data.delivery_fee_pending,
+    discountAmount: data.discount_amount,
+    total: data.total,
+  };
+}
+
+// Another payment attempt on an order that already exists (e.g. the popup was
+// closed and the customer tries again), so a retry never creates a second
+// order or holds a second slot. Returns the amount the server will accept.
+export async function addPaymentAttempt(orderId, reference) {
+  const { data, error } = await supabase.rpc('add_payment_attempt', { p_order_id: orderId, p_reference: reference });
+  if (error) throw error;
+  return { amount: data.amount, orderNumber: data.order_number };
 }
 
 // Status timeline shown on Order Detail/Tracking (spec §4). Every order

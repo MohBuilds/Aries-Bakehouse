@@ -217,7 +217,7 @@ on conflict (product_id, variant_type, variant_value) do nothing;
 -- DELIVERY OPTIONS (fee/zone TBC pending brand input per spec §13)
 -- ============================================================
 
+-- Delivery zones and time slots are created by the ordering_hardening migration.
 insert into delivery_option (name, type, zone, fee, active) values
-  ('Pickup — Abeokuta', 'pickup', null, 0, true),
-  ('Delivery — Abeokuta', 'delivery', 'Abeokuta', 0, true) -- fee TBC, set once brand confirms
+  ('Pickup — Abeokuta', 'pickup', null, 0, true)
 on conflict (name) do nothing;

@@ -12,10 +12,11 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const CSP = [
   "default-src 'self'",
   "script-src 'self' 'unsafe-inline' https://js.paystack.co",
-  "style-src 'self' 'unsafe-inline'",
+  // Paystack's popup loads its button stylesheet from paystack.com.
+  "style-src 'self' 'unsafe-inline' https://paystack.com https://checkout.paystack.com",
   "img-src 'self' data: https:",
   "font-src 'self' data:",
-  "connect-src 'self' https://*.supabase.co https://api.paystack.co",
+  "connect-src 'self' https://*.supabase.co https://api.paystack.co https://checkout.paystack.com",
   "frame-src https://checkout.paystack.com https://*.paystack.co",
   "manifest-src 'self'",
   "worker-src 'self'",

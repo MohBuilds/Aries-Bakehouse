@@ -2,19 +2,31 @@ import { useEffect, useState } from 'react';
 import { ArrowRight, CheckCircle2, Clock3, MessageCircle, Utensils, Truck, Sparkles, MapPin, Calendar, ShoppingBag } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 import { getOrder } from '../lib/orders.js';
+import { describeSlot, loadSlots } from '../lib/ordering.js';
 import { fmtLineTotal, fmtNaira } from '../lib/format.js';
 import EmptyState from '../components/EmptyState.jsx';
 
 export default function OrderConfirmation() {
   const { orderId } = useParams();
   const [order, setOrder] = useState(undefined);
+  const [slots, setSlots] = useState(null);
+
+  useEffect(() => {
+    loadSlots().then(setSlots);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
     getOrder(orderId)
-      .then((result) => { if (!cancelled) setOrder(result); })
-      .catch(() => { if (!cancelled) setOrder(null); });
-    return () => { cancelled = true; };
+      .then((result) => {
+        if (!cancelled) setOrder(result);
+      })
+      .catch(() => {
+        if (!cancelled) setOrder(null);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [orderId]);
 
   if (order === undefined) {
@@ -41,7 +53,7 @@ export default function OrderConfirmation() {
 
   const pending = order.status === 'pending';
   const supportUrl = `https://wa.me/2348121145785?text=${encodeURIComponent(
-    `Hello Aries 11 Bakehouse, I am checking in on my order #${order.orderNumber || order.id?.slice(0, 8)}.`
+    `Hello Aries 11 Bakehouse, I am checking in on my order #${order.orderNumber || order.id?.slice(0, 8)}.`,
   )}`;
 
   return (
@@ -52,9 +64,7 @@ export default function OrderConfirmation() {
           {pending ? <Clock3 size={28} aria-hidden="true" /> : <Sparkles size={28} aria-hidden="true" />}
         </div>
         <span className="page-kicker">{pending ? 'Payment Pending' : 'Order Confirmed'}</span>
-        <h1 className="order-confirmation__title">
-          {pending ? 'Your order is recorded.' : 'Baked for the moment.'}
-        </h1>
+        <h1 className="order-confirmation__title">{pending ? 'Your order is recorded.' : 'Baked for the moment.'}</h1>
         <p className="order-confirmation__subtitle">
           {pending
             ? 'We are confirming your payment. The kitchen has received your details.'
@@ -70,7 +80,9 @@ export default function OrderConfirmation() {
         <h2 className="order-confirmation__section-title">Kitchen Timeline</h2>
         <div className="order-status-steps">
           <div className="order-status-step is-complete">
-            <span className="order-status-step__dot"><CheckCircle2 size={16} /></span>
+            <span className="order-status-step__dot">
+              <CheckCircle2 size={16} />
+            </span>
             <div className="order-status-step__copy">
               <strong>Order Received</strong>
               <span>Details & receipt logged</span>
@@ -78,7 +90,9 @@ export default function OrderConfirmation() {
           </div>
 
           <div className={`order-status-step${!pending ? ' is-active' : ''}`}>
-            <span className="order-status-step__dot"><Utensils size={16} /></span>
+            <span className="order-status-step__dot">
+              <Utensils size={16} />
+            </span>
             <div className="order-status-step__copy">
               <strong>Kitchen Preparation</strong>
               <span>Handcrafted 24h before date</span>
@@ -86,7 +100,9 @@ export default function OrderConfirmation() {
           </div>
 
           <div className="order-status-step">
-            <span className="order-status-step__dot"><Truck size={16} /></span>
+            <span className="order-status-step__dot">
+              <Truck size={16} />
+            </span>
             <div className="order-status-step__copy">
               <strong>{order.fulfilment === 'pickup' ? 'Counter Pickup' : 'Delivery Dispatch'}</strong>
               <span>{order.fulfilment === 'pickup' ? 'Ready at Abeokuta counter' : 'Dispatched to your address'}</span>
@@ -118,30 +134,53 @@ export default function OrderConfirmation() {
             <strong>{fmtNaira(order.total)}</strong>
           </div>
           {order.hasUnpricedItems && (
-            <p className="order-confirmation__notice">
-              The displayed total excludes custom items awaiting price confirmation.
-            </p>
+            <p className="order-confirmation__notice">The displayed total excludes custom items awaiting price confirmation.</p>
           )}
         </div>
 
         <dl className="order-confirmation__details-grid">
           <div>
-            <dt><Truck size={14} aria-hidden="true" /> Fulfilment</dt>
+            <dt>
+              <Truck size={14} aria-hidden="true" /> Fulfilment
+            </dt>
             <dd>{order.fulfilment === 'pickup' ? 'Pickup in Abeokuta' : 'Doorstep Delivery'}</dd>
           </div>
           {order.fulfilment === 'delivery' && (
             <div>
-              <dt><MapPin size={14} aria-hidden="true" /> Address</dt>
-              <dd>{order.address || 'Address on file'}</dd>
+              <dt>
+                <MapPin size={14} aria-hidden="true" /> Address
+              </dt>
+              <dd>{[order.deliveryArea, order.address].filter(Boolean).join(' · ') || 'Address on file'}</dd>
+            </div>
+          )}
+          {order.fulfilment === 'delivery' && order.deliveryFeePending && (
+            <div>
+              <dt>
+                <Truck size={14} aria-hidden="true" /> Delivery fee
+              </dt>
+              <dd>We will confirm it on WhatsApp before your slot</dd>
             </div>
           )}
           <div>
-            <dt><Calendar size={14} aria-hidden="true" /> Scheduled Date</dt>
-            <dd>{order.date || 'To be scheduled'}</dd>
+            <dt>
+              <Calendar size={14} aria-hidden="true" /> Scheduled Date
+            </dt>
+            <dd>
+              {order.date
+                ? new Date(`${order.date}T12:00:00`).toLocaleDateString('en-NG', {
+                    weekday: 'long',
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric',
+                  })
+                : 'To be scheduled'}
+            </dd>
           </div>
           <div>
-            <dt><Clock3 size={14} aria-hidden="true" /> Time Window</dt>
-            <dd>{order.time ? `${order.time.charAt(0).toUpperCase() + order.time.slice(1)} slot` : 'Morning'}</dd>
+            <dt>
+              <Clock3 size={14} aria-hidden="true" /> Time Window
+            </dt>
+            <dd>{order.time ? describeSlot(slots, order.time) : 'To be scheduled'}</dd>
           </div>
         </dl>
       </section>
