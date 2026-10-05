@@ -56,9 +56,11 @@ src/
   components/      Shared UI building blocks
 
 supabase/
-  schema.sql       Canonical schema: tables, RLS policies, triggers, helper functions
-  seed.sql         Catalogue seed data
-  patch_*.sql      Sequential migrations applied on top of schema.sql
+  migrations/      Timestamped migrations. The first is the baseline schema (tables, RLS,
+                   triggers, helpers); the p0xx_ files are the original hand-applied patches.
+                   New schema changes go here, created with `supabase migration new <name>`.
+  seed.sql         Catalogue seed data (local/fresh databases only; never pushed to production)
+  config.toml      Supabase CLI config (Postgres version, per-function JWT settings)
   functions/       Edge Functions (paystack-webhook, verify-payment)
 
 public/            Static assets served by the app (includes curated product photography)
@@ -92,13 +94,18 @@ NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY=...
 Never put secret keys (Paystack secret key, Resend API key, Supabase service-role key) in `.env.local` or any file in this repo — they belong only in Supabase Edge Function secrets (Dashboard → Edge Functions → Secrets, or the Supabase CLI).
 
 ### 3. Set up the database
-In the Supabase SQL editor, run in order:
-1. `supabase/schema.sql`
-2. `supabase/seed.sql`
-3. Each `supabase/patch_*.sql` file, in numeric order
+With the [Supabase CLI](https://supabase.com/docs/guides/cli) linked to your project (`supabase link`):
+```bash
+supabase db push          # applies everything in supabase/migrations, in order
+```
+Then run `supabase/seed.sql` once in the SQL editor to load the catalogue.
+For a throwaway local copy instead, `supabase start` applies the migrations and the seed automatically (needs Docker).
 
 ### 4. Deploy the Edge Functions
-Deploy `supabase/functions/paystack-webhook` and `supabase/functions/verify-payment`. Point your Paystack webhook URL at the deployed `paystack-webhook` function, and disable "Enforce JWT Verification" on it (Paystack's webhook calls are unauthenticated and verified via HMAC signature instead).
+```bash
+supabase functions deploy     # JWT settings come from supabase/config.toml
+```
+Point your Paystack webhook URL at the deployed `paystack-webhook` function. Its JWT check is off in `config.toml` on purpose: Paystack's calls are unauthenticated and verified via HMAC signature instead.
 
 ### 5. Run the app
 ```bash
@@ -109,8 +116,11 @@ npm run start    # serve the production build
 
 ## Deployment
 
-- **App**: deploy to Vercel (or any Next.js-compatible host) with the same `NEXT_PUBLIC_*` environment variables set in the platform's dashboard.
-- **Database & functions**: managed entirely in Supabase — schema/patches via the SQL editor or CLI, Edge Function secrets via the dashboard or `supabase secrets set`.
+Deployment is automated by GitHub Actions — see [docs/CICD.md](docs/CICD.md).
+
+- **Push to `main`**: lint + build, migrations tested on a fresh database, then production database migrations, edge functions (only if changed), and the Vercel production deploy, in that order.
+- **Pull requests / `staging`**: lint + build + migration check + a Vercel preview URL.
+- **Secrets**: Edge Function secrets live in Supabase (`supabase secrets set`); the app's `NEXT_PUBLIC_*` variables live in Vercel.
 
 ## Security notes
 

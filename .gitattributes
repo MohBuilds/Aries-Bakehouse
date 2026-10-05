@@ -1,0 +1,2 @@
+# Shell scripts inside workflows break on CRLF line endings.
+.github/workflows/*.yml text eol=lf
