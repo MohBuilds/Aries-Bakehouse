@@ -9,5 +9,8 @@ create table if not exists newsletter_signup (
 
 alter table newsletter_signup enable row level security;
 
+-- Idempotent: the baseline schema already defines these policies.
+drop policy if exists "newsletter_signup insert" on newsletter_signup;
 create policy "newsletter_signup insert" on newsletter_signup for insert with check (true);
+drop policy if exists "newsletter_signup admin read" on newsletter_signup;
 create policy "newsletter_signup admin read" on newsletter_signup for select using (is_admin());

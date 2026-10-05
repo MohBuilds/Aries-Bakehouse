@@ -42,11 +42,12 @@ jobs:
               - 'supabase/migrations/**'
               - 'supabase/seed.sql'
               - 'supabase/config.toml'
+            # Only brand-new migration files can be pending in production.
             db_new:
-              - added|modified: 'supabase/migrations/**'
+              - added: 'supabase/migrations/**'
             functions_new:
               - added|modified: 'supabase/functions/**'
-              - added|modified: 'supabase/config.toml'
+              - modified: 'supabase/config.toml'
 
   quality:
     name: Lint & build
