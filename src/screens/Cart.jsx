@@ -12,7 +12,7 @@ const WHATSAPP_SUPPORT_URL =
   'https://wa.me/2348121145785?text=Hello%20Aries%2011%20Bakehouse%2C%20I%20have%20a%20question%20about%20my%20cart.';
 
 export default function Cart() {
-  const { items, subtotal, hasUnpricedItems, updateQty, removeFromCart, addToCart } = useCart();
+  const { items, cartReady, subtotal, hasUnpricedItems, updateQty, removeFromCart, addToCart } = useCart();
   const [discountCode, setDiscountCode] = useState('');
   const [discount, setDiscount] = useState(null);
   const [discountStatus, setDiscountStatus] = useState('idle');
@@ -54,6 +54,17 @@ export default function Cart() {
       setDiscountStatus('error');
       setDiscountMsg(error.message);
     }
+  }
+
+  if (items.length === 0 && !cartReady) {
+    return (
+      <div className="container cart-page" aria-busy="true" aria-label="Loading your cart">
+        <h1 className="visually-hidden">Your cart</h1>
+        <div className="skeleton" style={{ height: 36, width: 180, borderRadius: 8, marginBottom: 24 }} />
+        <div className="skeleton" style={{ height: 112, borderRadius: 12, marginBottom: 14 }} />
+        <div className="skeleton" style={{ height: 112, borderRadius: 12 }} />
+      </div>
+    );
   }
 
   if (items.length === 0) {

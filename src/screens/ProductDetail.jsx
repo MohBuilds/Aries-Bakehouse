@@ -297,11 +297,11 @@ function ProductReviews({ slug }) {
   );
 }
 
-function MobileProductAction({ price, disabled = false, onAddToCart }) {
+function MobileProductAction({ price, summary, disabled = false, onAddToCart }) {
   return (
     <div className="mobile-sticky-action">
       <div className="mobile-sticky-action__meta">
-        <span className="mobile-sticky-action__label">Order total</span>
+        <span className="mobile-sticky-action__label">{summary || 'Order total'}</span>
         <strong className="mobile-sticky-action__price">{price}</strong>
       </div>
       <div className="mobile-sticky-action__buttons">
@@ -501,6 +501,7 @@ function ConfiguredProduct({ product, rules, makeConfig }) {
       <MobileProductAction
         disabled={product.outOfStock}
         price={priceKnown ? fmtNaira(unitPrice * qty) : 'Price TBC'}
+        summary={`${buildItem().name}${qty > 1 ? ` × ${qty}` : ''}`}
         onAddToCart={() => addToCart(buildItem(), { openDrawer: true })}
       />
       <ProductReviews slug={product.slug} />

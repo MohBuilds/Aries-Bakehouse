@@ -19,8 +19,22 @@ function rowToItem(row) {
   };
 }
 
+const SNAPSHOT_KEY = 'aries11_cart_snapshot_v1';
+
+function readSnapshot() {
+  try {
+    const parsed = JSON.parse(window.localStorage.getItem(SNAPSHOT_KEY) || '[]');
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
 export function CartProvider({ children }) {
   const [items, setItems] = useState([]);
+  // False until we know the real cart (or know there isn't one). Pages show a
+  // loading state instead of "Your cart is empty" until this flips.
+  const [cartReady, setCartReady] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const cartIdRef = useRef(null);
   const customerIdRef = useRef(null);
@@ -56,20 +70,42 @@ export function CartProvider({ children }) {
   // returning visitor after a refresh) — do NOT trigger anonymous sign-in
   // just from viewing a page, that only happens on first real mutation.
   useEffect(() => {
+    // Paint last visit's cart immediately; the database result below replaces it.
+    const snapshot = readSnapshot();
+    if (snapshot.length) setItems((current) => (current.length ? current : snapshot));
+
     (async () => {
-      const supabase = await getSupabase();
-      const { data } = await supabase.auth.getSession();
-      if (!data.session) return;
       try {
+        const supabase = await getSupabase();
+        const { data } = await supabase.auth.getSession();
+        if (!data.session) {
+          // No account/session means no saved cart: drop any stale snapshot.
+          setItems((current) => (current === snapshot ? [] : current));
+          return;
+        }
         await resolveCustomerId(data.session);
         const cartId = await ensureCart();
         const { data: rows, error } = await supabase.from('cart_item').select('*').eq('cart_id', cartId);
         if (!error && rows) setItems(rows.map(rowToItem));
       } catch (err) {
         console.error('Cart load failed:', err);
+      } finally {
+        setCartReady(true);
       }
     })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Keep the snapshot in step with the cart, but only once the real cart has
+  // loaded, so an empty first render can never wipe a saved cart.
+  useEffect(() => {
+    if (!cartReady) return;
+    try {
+      window.localStorage.setItem(SNAPSHOT_KEY, JSON.stringify(items));
+    } catch {
+      /* storage full or blocked: the database copy is still authoritative */
+    }
+  }, [items, cartReady]);
 
   const addToCart = useCallback((item, opts = {}) => {
     setItems((prev) => {
@@ -79,7 +115,8 @@ export function CartProvider({ children }) {
       }
       return [...prev, { ...item, qty: item.qty || 1 }];
     });
-    if (!opts.silent) toast.success('Added to cart', { description: item.name });
+    // The drawer opening is itself the confirmation; a toast on top of it is noise.
+    if (!opts.silent && !opts.openDrawer) toast.success('Added to cart', { description: item.name });
     if (opts.openDrawer) setDrawerOpen(true);
     trackEvent('product_added_to_cart', { productId: item.productId, name: item.name, price: item.price, qty: item.qty || 1 });
 
@@ -195,6 +232,7 @@ export function CartProvider({ children }) {
 
   const value = {
     items,
+    cartReady,
     count,
     subtotal,
     hasUnpricedItems,

@@ -139,6 +139,16 @@ export default function Checkout() {
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [paymentState]);
 
+  if (items.length === 0 && !buyNowItem && !cart.cartReady) {
+    return (
+      <div className="container checkout-empty" aria-busy="true" aria-label="Loading your order">
+        <h1 className="visually-hidden">Checkout</h1>
+        <div className="skeleton" style={{ height: 24, width: 160, borderRadius: 8 }} />
+        <div className="skeleton" style={{ height: 14, width: 260, borderRadius: 8 }} />
+      </div>
+    );
+  }
+
   if (items.length === 0) {
     return (
       <div className="container checkout-empty">

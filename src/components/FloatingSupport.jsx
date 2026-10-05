@@ -26,9 +26,14 @@ export default function FloatingSupport() {
   }, [pathname]);
 
   if (pathname === '/contact') return null;
+  const ownsBottomBar = pathname.startsWith('/product/') || pathname === '/cart' || pathname === '/checkout';
 
   return (
-    <Button asChild variant="whatsapp" className={`floating-support${overFooter ? ' is-tucked' : ''}`}>
+    <Button
+      asChild
+      variant="whatsapp"
+      className={`floating-support${overFooter ? ' is-tucked' : ''}${ownsBottomBar ? ' floating-support--desktop-only' : ''}`}
+    >
       <a href="https://wa.me/2348121145785" target="_blank" rel="noreferrer" aria-label="Open WhatsApp support">
         <WhatsAppIcon />
         <span>Support</span>

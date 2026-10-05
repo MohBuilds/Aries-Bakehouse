@@ -7230,9 +7230,9 @@ html.dark .floating-support {
 
 .cart-drawer__item {
   display: grid;
-  grid-template-columns: 64px minmax(0, 1fr) 32px;
-  align-items: center;
-  gap: var(--space-3);
+  grid-template-columns: 64px minmax(0, 1fr);
+  align-items: start;
+  gap: var(--space-3) var(--space-4);
   padding: var(--space-4) var(--space-5);
   border-bottom: 1px solid var(--color-border);
 }
@@ -7256,50 +7256,16 @@ html.dark .floating-support {
 
 .cart-drawer__copy h3 {
   margin: 0;
-  font-size: 12px;
+  font-size: 15px;
+  font-weight: 700;
   line-height: 1.35;
 }
 
 .cart-drawer__copy > strong {
   display: block;
   margin-top: 2px;
-  font-size: 11px;
-}
-
-.cart-drawer__copy > div {
-  display: grid;
-  width: max-content;
-  grid-template-columns: 28px 28px 28px;
-  margin-top: var(--space-2);
-  overflow: hidden;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-}
-
-.cart-drawer__copy > div button,
-.cart-drawer__copy > div span {
-  display: grid;
-  width: 28px;
-  height: 28px;
-  place-items: center;
-}
-
-.cart-drawer__copy > div button {
-  border: 0;
-  background: transparent;
-  color: var(--color-choc);
-  cursor: pointer;
-}
-
-.cart-drawer__copy > div button:disabled {
-  opacity: 0.35;
-}
-
-.cart-drawer__copy > div span {
-  border-right: 1px solid var(--color-border);
-  border-left: 1px solid var(--color-border);
-  font-size: 10px;
-  font-weight: 800;
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
 }
 
 .cart-drawer__remove {
@@ -12807,3 +12773,157 @@ html.dark .film-end { background: var(--color-cream); }
 }
 
 html.dark .site-footer { border-top: 1px solid var(--color-border); }
+
+/* ============================================================
+   Hero loader, visible skip, shorter film
+   ============================================================ */
+.hero-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 400;
+  display: grid;
+  place-items: center;
+  background: #1C0D0A;
+  /* Failsafe: lifts by itself if JS never finishes it. */
+  animation: hero-loader-out 800ms cubic-bezier(0.76, 0, 0.24, 1) 2700ms forwards;
+}
+
+.hero-loader.is-done {
+  animation: hero-loader-out 800ms cubic-bezier(0.76, 0, 0.24, 1) forwards;
+  pointer-events: none;
+}
+
+.hero-loader__mark {
+  display: grid;
+  justify-items: center;
+  gap: 22px;
+  width: min(340px, 68vw);
+  animation: hero-loader-in 900ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.is-done .hero-loader__mark {
+  opacity: 0;
+  transform: translateY(-10px) scale(0.98);
+  transition: opacity 360ms ease-in, transform 480ms ease-in;
+}
+
+.hero-loader__mark img { width: 100%; height: auto; }
+
+.hero-loader__line {
+  position: relative;
+  width: 44%;
+  height: 1px;
+  overflow: hidden;
+  background: rgb(216 185 140 / 0.22);
+}
+
+.hero-loader__line::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  width: 45%;
+  background: #D8B98C;
+  animation: hero-loader-sweep 1.15s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+
+@keyframes hero-loader-in {
+  from { opacity: 0; transform: translateY(10px) scale(0.985); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes hero-loader-sweep {
+  from { transform: translateX(-110%); }
+  to { transform: translateX(260%); }
+}
+
+@keyframes hero-loader-out {
+  to { transform: translateY(-101%); visibility: hidden; }
+}
+
+html[data-intro-seen] .hero-loader { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-loader { display: none; }
+}
+
+/* Skip: always visible, never in the way. */
+.film__skip {
+  position: absolute;
+  z-index: 12;
+  top: calc(72px + 16px);
+  right: var(--film-gutter);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 16px 0 18px;
+  border: 1px solid rgb(255 253 248 / 0.22);
+  border-radius: var(--radius-pill);
+  background: rgb(18 8 6 / 0.55);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  color: #FFFDF8;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: background 200ms ease-out, opacity 300ms ease-out, transform 300ms ease-out;
+}
+
+.film__skip:hover { background: rgb(18 8 6 / 0.85); }
+.film__skip svg { transition: transform 200ms ease-out; }
+.film__skip:hover svg { transform: translateY(2px); }
+
+/* Out of the way on the last scene, where the CTA already is. */
+.film[data-final-live] .film__skip { opacity: 0; transform: translateY(-6px); pointer-events: none; }
+
+/* Film length: ~5.8 screens of scroll on desktop, ~5.2 on phones (was 9.3 / 8.1). */
+.film--bb { height: calc(var(--film-length) * 5svh); }
+
+@media (max-width: 1023px) {
+  .film--bb { height: calc(var(--film-length) * 4.5svh); }
+  .film__skip { right: var(--film-gutter); top: calc(72px + 12px); min-height: 36px; padding: 0 14px 0 16px; font-size: 11px; }
+}
+
+.pwa-install-prompt__share { display: inline-block; vertical-align: -2px; margin: 0 2px; }
+
+@media (display-mode: standalone) {
+  .film__skip { top: calc(72px + env(safe-area-inset-top) + 12px); }
+}
+
+/* The announcement bar pushes the film down on first load, so the hero copy
+   needs extra room above the mobile bottom nav or its last link is clipped. */
+@media (max-width: 767px) {
+  .site-shell.has-mobile-nav .film__copy--hero { bottom: calc(136px + env(safe-area-inset-bottom)); }
+}
+
+/* Cart drawer line item: thumb-sized stepper (these rules were missing, so the
+   +/- buttons rendered as unstyled 24px controls with the bin on top). */
+.cart-drawer__controls { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 10px; }
+.cart-quantity-pill { gap: 0; padding: 0; overflow: hidden; }
+.cart-quantity-btn {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--color-choc);
+  cursor: pointer;
+  transition: background 160ms ease-out;
+}
+.cart-quantity-btn:hover:not(:disabled) { background: color-mix(in srgb, var(--color-choc) 8%, transparent); }
+.cart-quantity-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.cart-quantity-pill .cart-quantity-val { min-width: 28px; font-size: 15px; font-variant-numeric: tabular-nums; }
+.cart-drawer__remove { width: 44px; height: 44px; color: var(--color-text-muted); transition: color 160ms ease-out, background 160ms ease-out; }
+.cart-drawer__remove:hover { color: var(--color-error); background: color-mix(in srgb, var(--color-error) 10%, transparent); }
+
+/* Selection shown in the mobile sticky bar must truncate, not wrap. */
+.mobile-sticky-action__label { display: block; max-width: calc(100vw - 200px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+@media (max-width: 767px) {
+  .floating-support--desktop-only { display: none; }
+}
