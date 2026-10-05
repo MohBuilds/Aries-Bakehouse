@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
-import { ArrowUpRight, MessageCircle } from 'lucide-react';
+import { ArrowDown, ArrowUpRight, MessageCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { fmtNaira } from '../../lib/format.js';
 import { scrollToY } from '../SmoothScroll.jsx';
@@ -277,7 +277,7 @@ export default function BananaFilm({ sizes = null }) {
     const target = document.getElementById('after-film');
     if (!target) return;
     event.preventDefault();
-    scrollToY(target.getBoundingClientRect().top + window.scrollY - 72, { immediate: true });
+    scrollToY(target.getBoundingClientRect().top + window.scrollY - 72);
     target.focus({ preventScroll: true });
   };
 
@@ -464,8 +464,9 @@ export default function BananaFilm({ sizes = null }) {
             </div>
 
             <div className="film__hud">
-              <a href="#after-film" className="skip-link film__skip-link" onClick={skipFilm}>
-                Skip the film
+              <a href="#after-film" className="film__skip" onClick={skipFilm}>
+                <span>Skip intro</span>
+                <ArrowDown size={14} aria-hidden="true" />
               </a>
             </div>
           </div>

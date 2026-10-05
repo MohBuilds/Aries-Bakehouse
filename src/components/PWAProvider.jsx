@@ -1,15 +1,40 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { Download, X } from 'lucide-react';
+import { usePathname } from 'next/navigation';
+import { Download, Share, X } from 'lucide-react';
 import Image from 'next/image';
 import { toast } from './ui/toast.jsx';
 
-const DISMISSED_KEY = 'aries11_install_prompt_dismissed';
+const DISMISSED_KEY = 'aries11_install_prompt_dismissed_at';
+const VIEWS_KEY = 'aries11_page_views';
+const SNOOZE_DAYS = 14;
+const SHOW_AFTER_MS = 5000;
+// Never interrupt someone who is paying or managing an order.
+const QUIET_PATHS = ['/cart', '/checkout', '/order', '/account', '/admin', '/offline'];
+
+function isStandalone() {
+  return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+}
+
+// iPhones and iPads never fire `beforeinstallprompt`; installing there is the
+// Share sheet's "Add to Home Screen", so we show instructions instead.
+function isIosSafari() {
+  const ua = window.navigator.userAgent;
+  const ios = /iPad|iPhone|iPod/.test(ua) || (ua.includes('Mac') && window.navigator.maxTouchPoints > 1);
+  return ios && /Safari/.test(ua) && !/CriOS|FxiOS|EdgiOS/.test(ua);
+}
+
+function snoozed() {
+  const at = Number(window.localStorage.getItem(DISMISSED_KEY) || 0);
+  return at && Date.now() - at < SNOOZE_DAYS * 86400000;
+}
 
 export default function PWAProvider() {
-  const [installPrompt, setInstallPrompt] = useState(null);
-  const pendingPrompt = useRef(null);
+  const pathname = usePathname();
+  const [mode, setMode] = useState(null); // 'android' | 'ios' | null
+  const deferred = useRef(null);
+  const [ready, setReady] = useState(false); // engaged enough to be asked
 
   useEffect(() => {
     if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
@@ -20,66 +45,92 @@ export default function PWAProvider() {
 
     const handleInstallPrompt = (event) => {
       event.preventDefault();
-      if (window.localStorage.getItem(DISMISSED_KEY) === 'true') return;
-      pendingPrompt.current = event;
-      if (window.scrollY > window.innerHeight * 0.75) setInstallPrompt(event);
-    };
-    const handleScroll = () => {
-      if (pendingPrompt.current && window.scrollY > window.innerHeight * 0.75) {
-        setInstallPrompt(pendingPrompt.current);
-      }
+      deferred.current = event;
     };
     const handleInstalled = () => {
-      pendingPrompt.current = null;
-      setInstallPrompt(null);
+      deferred.current = null;
+      setMode(null);
       window.localStorage.removeItem(DISMISSED_KEY);
-      toast.success('Aries 11 installed', { description: 'The bakehouse is now available from your home screen.' });
+      toast.success('Aries 11 installed', { description: 'Find the bakehouse on your home screen.' });
     };
-    const handleOffline = () => toast.warning('You are offline', { description: 'Saved public pages remain available. Ordering needs a connection.' });
+    const handleOffline = () => toast.warning('You are offline', { description: 'Saved pages still open. Ordering needs a connection.' });
     const handleOnline = () => toast.success('Back online', { description: 'Ordering and account updates are available again.' });
 
     window.addEventListener('beforeinstallprompt', handleInstallPrompt);
-    window.addEventListener('scroll', handleScroll, { passive: true });
     window.addEventListener('appinstalled', handleInstalled);
     window.addEventListener('offline', handleOffline);
     window.addEventListener('online', handleOnline);
     return () => {
       window.removeEventListener('beforeinstallprompt', handleInstallPrompt);
-      window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('appinstalled', handleInstalled);
       window.removeEventListener('offline', handleOffline);
       window.removeEventListener('online', handleOnline);
     };
   }, []);
 
-  if (!installPrompt) return null;
+  // "Engaged" = looked at a second page in this visit. Ask then, not on arrival.
+  useEffect(() => {
+    try {
+      const views = Number(window.sessionStorage.getItem(VIEWS_KEY) || 0) + 1;
+      window.sessionStorage.setItem(VIEWS_KEY, String(views));
+      if (views >= 2) setReady(true);
+    } catch {
+      /* storage blocked: simply never prompt */
+    }
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!ready || isStandalone() || snoozed()) return undefined;
+    if (QUIET_PATHS.some((path) => pathname.startsWith(path))) {
+      setMode(null);
+      return undefined;
+    }
+    const timer = window.setTimeout(() => {
+      if (deferred.current) setMode('android');
+      else if (isIosSafari()) setMode('ios');
+    }, SHOW_AFTER_MS);
+    return () => window.clearTimeout(timer);
+  }, [ready, pathname]);
+
+  if (!mode) return null;
 
   const install = async () => {
-    await installPrompt.prompt();
-    const choice = await installPrompt.userChoice;
+    const event = deferred.current;
+    if (!event) return;
+    await event.prompt();
+    const choice = await event.userChoice;
     if (choice.outcome === 'accepted') {
-      pendingPrompt.current = null;
-      setInstallPrompt(null);
+      deferred.current = null;
+      setMode(null);
+    } else {
+      dismiss();
     }
   };
 
-  const dismiss = () => {
-    pendingPrompt.current = null;
-    window.localStorage.setItem(DISMISSED_KEY, 'true');
-    setInstallPrompt(null);
-  };
+  function dismiss() {
+    window.localStorage.setItem(DISMISSED_KEY, String(Date.now()));
+    setMode(null);
+  }
 
   return (
     <aside className="pwa-install-prompt" aria-label="Install Aries 11 Bakehouse">
       <Image src="/pwa-icon-192.png" alt="" width={44} height={44} />
       <div className="pwa-install-prompt__copy">
-        <strong>Keep the bakehouse close</strong>
-        <span>Install for quicker mobile access.</span>
+        <strong>Add Aries 11 to your home screen</strong>
+        {mode === 'ios' ? (
+          <span>
+            Tap <Share size={13} aria-label="Share" className="pwa-install-prompt__share" /> then &ldquo;Add to Home Screen&rdquo;.
+          </span>
+        ) : (
+          <span>Order in two taps, even on a weak connection.</span>
+        )}
       </div>
-      <button type="button" className="btn btn-primary btn-sm" onClick={install}>
-        <Download size={15} aria-hidden="true" /> Install
-      </button>
-      <button type="button" className="pwa-install-prompt__close" onClick={dismiss} aria-label="Dismiss install prompt">
+      {mode === 'android' && (
+        <button type="button" className="btn btn-primary btn-sm" onClick={install}>
+          <Download size={15} aria-hidden="true" /> Install
+        </button>
+      )}
+      <button type="button" className="pwa-install-prompt__close" onClick={dismiss} aria-label="Not now">
         <X size={17} aria-hidden="true" />
       </button>
     </aside>

@@ -24,7 +24,7 @@ export const metadata = {
   description: 'Fresh banana bread, brownies, pastries, cake treats and small-chops platters made to order in Abeokuta.',
   icons: {
     icon: '/uploads/Aries11_Monogram_Transparent.svg',
-    apple: '/pwa-icon-192.png',
+    apple: [{ url: '/pwa-icon-192.png', sizes: '192x192', type: 'image/png' }],
   },
   manifest: '/manifest.webmanifest',
   appleWebApp: {

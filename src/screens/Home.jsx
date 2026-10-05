@@ -2,6 +2,7 @@
 
 import { useCategories } from '../hooks/useCatalog.js';
 import BananaFilm from '../components/film/BananaFilm.jsx';
+import HeroLoader from '../components/film/HeroLoader.jsx';
 import CounterGrid from '../components/CounterGrid.jsx';
 import ClosingPanel from '../components/ClosingPanel.jsx';
 
@@ -11,6 +12,7 @@ export default function Home({ categories: initialCategories, products = [], ban
   return (
     <div className="home-page">
       {/* Act 1: Scroll-scrubbed Banana Bread film (hero → toppings → sizes → order) */}
+      <HeroLoader />
       <BananaFilm sizes={bananaSizes} />
 
       {/* Act 2: every category at a glance, priced from live product data */}
